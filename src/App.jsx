@@ -3,7 +3,7 @@ import './App.css'
 
 const links = [
   { id: 'price-list', icon: '💜', text: 'Price List', href: 'https://docs.google.com/spreadsheets/d/1Akr_wwyNCsMjfKLsEINCNU54Ln61kXM2cfxhKUVwLuk/edit?gid=0#gid=0' },
-  { id: 'discord', icon: '💬', text: 'Join Community', href: 'https://discord.gg/SX8AfwZS' },
+  { id: 'whatsapp-community', icon: '💬', text: 'Join Community', href: 'https://chat.whatsapp.com/HJLbXPLhu8b9TdRUsQwOrA' },
   { id: 'e-guides', icon: '📘', text: 'Electronic Guides', href: 'https://drive.google.com/drive/folders/1tNuXfOSXyQyyck7BK-BqZNIbvNBpLgXR' },
   { id: 'admin-jonina', icon: '📱', text: 'Admin Jonina', href: 'https://api.whatsapp.com/send?phone=639058429200' },
   { id: 'admin-kimmu', icon: '📱', text: 'Admin Kimmu', href: 'https://api.whatsapp.com/send?phone=639162890183' },
