@@ -19,6 +19,7 @@ const adminLinks = [
 
 function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
+  const [isMemberInfoOpen, setIsMemberInfoOpen] = useState(false)
 
   useEffect(() => {
     // Parallax effect for background glows
@@ -174,6 +175,45 @@ function App() {
             </div>
           </div>
         </nav>
+
+        {/* Member Tag */}
+        <div className="member-tag">
+          <img src="/a4m-logo.png" alt="A4M Member" className="member-logo" />
+          <div className="member-content">
+            <span className="member-text">American Academy of Anti-Aging Medicine (A4M) Member</span>
+            <span className="member-id">Membership #: 1718800</span>
+            <button className="member-info-trigger" onClick={() => setIsMemberInfoOpen(true)}>
+              Why it matters?
+            </button>
+          </div>
+        </div>
+
+        {/* Member Info Modal */}
+        {isMemberInfoOpen && (
+          <div className="modal-overlay" onClick={() => setIsMemberInfoOpen(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setIsMemberInfoOpen(false)}>×</button>
+              <h2 className="modal-title">Why Choose an A4M Member?</h2>
+
+              <div className="modal-body">
+                <div className="info-item">
+                  <h3>🏆 Elite Expertise</h3>
+                  <p>The American Academy of Anti-Aging Medicine (A4M) is the global leader in longevity medicine.</p>
+                </div>
+
+                <div className="info-item">
+                  <h3>🔬 Cutting-Edge Care</h3>
+                  <p>Members are trained in the latest metabolic and functional medicine protocols.</p>
+                </div>
+
+                <div className="info-item">
+                  <h3>🛡️ Safety & Quality</h3>
+                  <p>Ensures your provider is committed to the highest standards of clinical practice.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="footer">
