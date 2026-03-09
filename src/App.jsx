@@ -5,6 +5,7 @@ const links = [
   { id: 'price-list', icon: '💜', text: 'Price List', href: 'https://docs.google.com/spreadsheets/d/1Akr_wwyNCsMjfKLsEINCNU54Ln61kXM2cfxhKUVwLuk/edit?gid=0#gid=0' },
   { id: 'whatsapp-community', icon: '💬', text: 'Join Community', href: 'https://chat.whatsapp.com/HJLbXPLhu8b9TdRUsQwOrA' },
   { id: 'e-guides', icon: '📘', text: 'Electronic Guides', href: 'https://drive.google.com/drive/folders/1tNuXfOSXyQyyck7BK-BqZNIbvNBpLgXR' },
+  { id: 'coa', icon: '📋', text: 'COA', href: 'https://drive.google.com/drive/folders/18cfTEy6FIXlJTcrxoPpeRlr-BzbTG4Kn' },
 ]
 
 const adminLinks = [
