@@ -18,8 +18,68 @@ const adminLinks = [
   { id: 'admin-jonina', text: 'Admin Jonina', href: 'https://api.whatsapp.com/send?phone=639058429200' },
 ]
 
+const verifiedResellers = [
+  { region: 'NCR', resellers: [
+    { name: 'VR Ranzel', location: 'CAMANAVA', whatsapp: '639772079026' },
+    { name: 'Hanigreys', location: 'Las Pinas City', whatsapp: '639778132630' },
+    { name: 'Dior', location: 'Las Piñas/Alabang', whatsapp: '639994640938' },
+    { name: 'CM', location: 'Makati', whatsapp: '639173810203' },
+    { name: 'PJ Padilla', location: 'Mandaluyong', whatsapp: '639356990380' },
+    { name: 'Johnny', location: 'Mandaluyong', whatsapp: '639053189325' },
+    { name: 'VR Tin V', location: 'Manila', whatsapp: '639156189057' },
+    { name: 'VR Donna', location: 'North Caloocan', whatsapp: '639275040723' },
+    { name: 'Doonnaa', location: 'North Caloocan/QC', whatsapp: '639940732838' },
+    { name: 'VR Kricket', location: 'Quezon City', whatsapp: '639616807032' },
+    { name: 'J.ricaaa', location: 'Quezon City', whatsapp: '639619549496' },
+    { name: 'Peerpeppers', location: 'Sampaloc, Manila', whatsapp: '639173054436' },
+  ]},
+  { region: 'Central Luzon', resellers: [
+    { name: 'Nikki', location: 'Arayat', whatsapp: '639357838505' },
+    { name: 'VR Marthyne', location: 'Bocaue', whatsapp: '639153456788' },
+    { name: 'VR TirzMagic', location: 'Marilao, Bulacan', whatsapp: '639625887847' },
+    { name: 'Peptide with Katy', location: 'San Fernando & Telabastagan', whatsapp: '639190981812' },
+  ]},
+  { region: 'CALABARZON', resellers: [
+    { name: 'Jonina David', location: 'Bacoor', whatsapp: '639058429200' },
+    { name: 'Grey S.', location: 'Cavite', whatsapp: '639452319679' },
+    { name: 'Frances T', location: 'Dasmariñas City', whatsapp: '639499516769' },
+    { name: 'Jo-Anne Luna-Whaley', location: 'Imus', whatsapp: '639690877490' },
+    { name: 'Gossip Glow Macau', location: 'Macau SAR', whatsapp: '639777061224' },
+    { name: 'Tina Manahan', location: 'Montalban', whatsapp: '639934015392' },
+    { name: 'Jenny De Bianca', location: 'Pasig - Cainta', whatsapp: '639273205785' },
+  ]},
+  { region: 'MIMAROPA', resellers: [
+    { name: 'Own Benefits', location: 'Palawan', whatsapp: '639178281853' },
+  ]},
+  { region: 'Central Visayas', resellers: [
+    { name: '@LaiPepties', location: 'Cebu City', whatsapp: '639976470458' },
+  ]},
+  { region: 'Zamboanga Peninsula', resellers: [
+    { name: 'Malicamp Biobeauty', location: 'Pagadian City', whatsapp: '639099199885' },
+    { name: 'VR Paige', location: 'Pagadian City', whatsapp: '639192473712' },
+  ]},
+  { region: 'Northern Mindanao', resellers: [
+    { name: 'VR Jazzey', location: 'Bukidnon', whatsapp: '639209885705' },
+    { name: 'Cindelle', location: 'Cagayan de Oro', whatsapp: '639171766929' },
+    { name: 'Miks', location: 'CDO & Misamis Oriental', whatsapp: '639309893405' },
+  ]},
+  { region: 'Davao Region', resellers: [
+    { name: 'VR Karen', location: 'Davao Oriental', whatsapp: '639436636693' },
+  ]},
+  { region: 'SOCCSKSARGEN', resellers: [
+    { name: 'Grance Aguilar', location: 'General Santos City', whatsapp: '639206891642' },
+  ]},
+  { region: 'CARAGA', resellers: [
+    { name: 'Jho', location: 'Butuan', whatsapp: '639193548595' },
+    { name: 'Kara', location: 'All Cities of Caraga', whatsapp: '639946946430' },
+    { name: 'Ranma Saotome', location: 'Caraga Region', whatsapp: '639694603790' },
+  ]},
+]
+
 function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
+  const [isResellersOpen, setIsResellersOpen] = useState(false)
+  const [openRegion, setOpenRegion] = useState(null)
   const [isMemberInfoOpen, setIsMemberInfoOpen] = useState(false)
 
   useEffect(() => {
@@ -70,6 +130,16 @@ function App() {
   const toggleAdmin = (e) => {
     handleRipple(e)
     setIsAdminOpen(!isAdminOpen)
+  }
+
+  const toggleResellers = (e) => {
+    handleRipple(e)
+    setIsResellersOpen(!isResellersOpen)
+    if (isResellersOpen) setOpenRegion(null)
+  }
+
+  const toggleRegion = (regionName) => {
+    setOpenRegion(openRegion === regionName ? null : regionName)
   }
 
   return (
@@ -172,6 +242,50 @@ function App() {
                   <span className="admin-name">{admin.text}</span>
                   <span className="btn-arrow">→</span>
                 </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Verified Resellers Dropdown */}
+          <div className="admin-dropdown" style={{ animationDelay: '0.5s' }}>
+            <button
+              className={`link-btn admin-toggle ${isResellersOpen ? 'active' : ''}`}
+              onClick={toggleResellers}
+              aria-expanded={isResellersOpen}
+            >
+              <span className="btn-icon">✅</span>
+              <span className="btn-text">Verified Resellers</span>
+              <span className={`btn-chevron ${isResellersOpen ? 'open' : ''}`}>▼</span>
+            </button>
+            <div className={`admin-menu reseller-menu ${isResellersOpen ? 'open' : ''}`}>
+              {verifiedResellers.map((group) => (
+                <div key={group.region} className="region-group">
+                  <button
+                    className={`region-btn ${openRegion === group.region ? 'active' : ''}`}
+                    onClick={() => toggleRegion(group.region)}
+                  >
+                    <span className="region-name">{group.region}</span>
+                    <span className="region-count">{group.resellers.length}</span>
+                    <span className={`region-chevron ${openRegion === group.region ? 'open' : ''}`}>▼</span>
+                  </button>
+                  <div className={`region-resellers ${openRegion === group.region ? 'open' : ''}`}>
+                    {group.resellers.map((reseller, idx) => (
+                      <a
+                        key={idx}
+                        href={`https://api.whatsapp.com/send?phone=${reseller.whatsapp}`}
+                        className="reseller-card"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="reseller-info">
+                          <span className="reseller-name">{reseller.name}</span>
+                          <span className="reseller-location">{reseller.location}</span>
+                        </div>
+                        <span className="reseller-wa">💬</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>

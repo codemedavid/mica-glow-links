@@ -548,6 +548,149 @@ body {
   flex: 1;
 }
 
+/* ===== Reseller Menu ===== */
+.reseller-menu.open {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.reseller-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.reseller-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reseller-menu::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 4px;
+}
+
+/* Region Group */
+.region-group {
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.region-group:last-child {
+  border-bottom: none;
+}
+
+.region-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: left;
+}
+
+.region-btn:hover {
+  background: rgba(139, 92, 246, 0.12);
+}
+
+.region-btn.active {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--primary-light);
+}
+
+.region-name {
+  flex: 1;
+}
+
+.region-count {
+  font-size: 0.7rem;
+  background: rgba(139, 92, 246, 0.25);
+  color: var(--primary-light);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.region-chevron {
+  font-size: 0.625rem;
+  opacity: 0.5;
+  transition: transform 0.3s ease;
+}
+
+.region-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Region Resellers List */
+.region-resellers {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.region-resellers.open {
+  max-height: 600px;
+}
+
+.reseller-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 10px 24px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: background 0.2s ease;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+  cursor: pointer;
+}
+
+.reseller-card:last-child {
+  border-bottom: none;
+}
+
+.reseller-card:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.reseller-card:hover .reseller-wa {
+  transform: scale(1.2);
+}
+
+.reseller-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.reseller-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reseller-location {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reseller-wa {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
 /* ===== Footer ===== */
 .footer {
   margin-top: 32px;
