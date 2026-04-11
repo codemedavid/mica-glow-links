@@ -156,14 +156,14 @@ const products = [
   { id: "TA5", name: "TA5 - Thymosin Alpha-1", price: 713.0 },
   { id: "TER10", name: "TER10 - Teriparatide", price: 1705.0 },
   { id: "THEMICABLEND", name: "THEMICABLEND - Mica HIGHLY RECOMMENDS 💯 🔥 KPV 10mg + GHKCu 50mg", price: 905.2 },
-  { id: "TR10", name: "TR10", price: 496.0 },
-  { id: "TR15", name: "TR15", price: 663.4 },
-  { id: "TR20", name: "TR20", price: 744.0 },
-  { id: "TR30", name: "TR30", price: 886.6 },
-  { id: "TR40", name: "TR40", price: 1066.4 },
-  { id: "TR5", name: "TR5 - Mica's Top Pick 💯 🔥 Tirzepatide (With Vanguard and Janoshik Lab Test)", price: 403.0 },
-  { id: "TR50", name: "TR50", price: 1258.6 },
-  { id: "TR60", name: "TR60", price: 1506.6 },
+  { id: "TR10", name: "TR10 - Tirzepatide 10mg", price: 496.0 },
+  { id: "TR15", name: "TR15 - Tirzepatide 15mg", price: 663.4 },
+  { id: "TR20", name: "TR20 - Tirzepatide 20mg", price: 744.0 },
+  { id: "TR30", name: "TR30 - Tirzepatide 30mg", price: 886.6 },
+  { id: "TR40", name: "TR40 - Tirzepatide 40mg", price: 1066.4 },
+  { id: "TR5", name: "TR5 - Tirzepatide 5mg", price: 403.0 },
+  { id: "TR50", name: "TR50 - Tirzepatide 50mg", price: 1258.6 },
+  { id: "TR60", name: "TR60 - Tirzepatide 60mg", price: 1506.6 },
   { id: "TSM10", name: "TSM10 - Tesamorelin", price: 1333.0 },
   { id: "TSM5", name: "TSM5 - Tesamorelin", price: 775.0 },
   { id: "TY10", name: "TY10 - Thymalin", price: 496.0 },
@@ -187,6 +187,7 @@ function App() {
     { id: 1, productId: '', qty: 1 },
   ])
   const [itemIdSeed, setItemIdSeed] = useState(2)
+  const [productSearch, setProductSearch] = useState('')
 
   useEffect(() => {
     // Parallax effect for background glows
@@ -256,6 +257,23 @@ function App() {
     setItemIdSeed((prev) => prev + 1)
   }
 
+  const addProductToOrder = (productId) => {
+    let addedNew = false
+    setOrderItems((prev) => {
+      const emptyIndex = prev.findIndex((item) => !item.productId)
+      if (emptyIndex !== -1) {
+        const updated = [...prev]
+        updated[emptyIndex] = { ...updated[emptyIndex], productId, qty: updated[emptyIndex].qty || 1 }
+        return updated
+      }
+      addedNew = true
+      return [...prev, { id: itemIdSeed, productId, qty: 1 }]
+    })
+    if (addedNew) {
+      setItemIdSeed((prev) => prev + 1)
+    }
+  }
+
   const updateOrderItem = (id, patch) => {
     setOrderItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, ...patch } : item))
@@ -265,6 +283,23 @@ function App() {
   const removeOrderItem = (id) => {
     setOrderItems((prev) => (prev.length > 1 ? prev.filter((item) => item.id !== id) : prev))
   }
+
+  const getProductDisplayName = (product) => {
+    if (/^TR\\d+$/i.test(product.id)) {
+      const mg = product.id.slice(2)
+      return `${product.id} - Tirzepatide ${mg}mg`
+    }
+    return product.name
+  }
+
+  const filteredProducts = products.filter((product) => {
+    const query = productSearch.trim().toLowerCase()
+    if (!query) return true
+    const tokens = query.split(/\s+/).filter(Boolean)
+    const displayName = getProductDisplayName(product).toLowerCase()
+    const code = product.id.toLowerCase()
+    return tokens.every((token) => displayName.includes(token) || code.includes(token))
+  })
 
   const orderLines = orderItems.map((item) => {
     const product = products.find((p) => p.id === item.productId)
@@ -463,6 +498,52 @@ function App() {
             </div>
 
             <div className="order-list">
+              <div className="order-search">
+                <label className="order-search-label" htmlFor="product-search">Search products</label>
+                <div className="order-search-field">
+                  <input
+                    id="product-search"
+                    className="order-search-input"
+                    type="text"
+                    placeholder="Type a product code or name..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                  />
+                  {productSearch && (
+                    <button
+                      className="order-search-clear"
+                      type="button"
+                      onClick={() => setProductSearch('')}
+                      aria-label="Clear search"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+                <span className="order-search-count">{filteredProducts.length} products</span>
+              </div>
+              {productSearch.trim() && (
+                <div className="order-search-results">
+                  {filteredProducts.length === 0 && (
+                    <div className="order-search-empty">No matching products found.</div>
+                  )}
+                  {filteredProducts.map((product) => (
+                    <div className="order-search-item" key={product.id}>
+                      <div className="order-search-info">
+                        <span className="order-search-name">{getProductDisplayName(product)}</span>
+                        <span className="order-search-price">{formatCurrency(product.price)}</span>
+                      </div>
+                      <button
+                        className="order-search-add"
+                        type="button"
+                        onClick={() => addProductToOrder(product.id)}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="order-header" aria-hidden="true">
                 <span>Product (Per Vial)</span>
                 <span>Vial Qty</span>
@@ -480,9 +561,9 @@ function App() {
                       onChange={(e) => updateOrderItem(line.id, { productId: e.target.value })}
                     >
                       <option value="">Select a product</option>
-                      {products.map((product) => (
+                      {filteredProducts.map((product) => (
                         <option key={product.id} value={product.id}>
-                          {product.name} — {formatCurrency(product.price)}
+                          {getProductDisplayName(product)} — {formatCurrency(product.price)}
                         </option>
                       ))}
                     </select>
