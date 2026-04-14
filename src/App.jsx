@@ -179,10 +179,110 @@ const products = [
   { id: "XT100", name: "XT100 - Botulinum toxin", price: 1215.2 },
 ]
 
+const customerReviews = [
+  {
+    id: 'review-5836',
+    src: '/reviews/img_5836.jpg',
+    title: 'Order received',
+    tag: 'Delivery',
+    description: 'Customer thanks the admin for help; photo of many labeled vials arranged on a table with a Good Morning sign.',
+  },
+  {
+    id: 'review-5837',
+    src: '/reviews/img_5837.jpg',
+    title: 'Raffle win TR30',
+    tag: 'Raffle win',
+    description: 'Customer raffle prize; close-up of a TR30 30mg vial box with red caps.',
+  },
+  {
+    id: 'review-5838',
+    src: '/reviews/img_5838.jpg',
+    title: 'Raffle prize scale',
+    tag: 'Raffle win',
+    description: 'Customer raffle prize; Xiaomi body composition scale box on a desk.',
+  },
+  {
+    id: 'review-5839',
+    src: '/reviews/img_5839.jpg',
+    title: 'Progress update',
+    tag: 'Result update',
+    description: 'Customer shares a 3-month journey; progress photo is intentionally obscured for privacy.',
+  },
+  {
+    id: 'review-5840',
+    src: '/reviews/img_5840.jpg',
+    title: 'Raffle TR30 pack',
+    tag: 'Raffle win',
+    description: 'Customer raffle TR30; plastic cases of vials with blue and pink caps.',
+  },
+  {
+    id: 'review-5841',
+    src: '/reviews/img_5841.jpg',
+    title: 'Package received',
+    tag: 'Delivery',
+    description: 'Customer package received; purple bubble mailer with a thank-you sticker.',
+  },
+  {
+    id: 'review-5842',
+    src: '/reviews/img_5842.jpg',
+    title: 'Fragile delivery',
+    tag: 'Delivery',
+    description: 'Customer delivery; padded package labeled fragile with an order list taped on top.',
+  },
+  {
+    id: 'review-5843',
+    src: '/reviews/img_5843.jpg',
+    title: 'Label printer prize',
+    tag: 'Raffle win',
+    description: 'Customer raffle prize; NIIMBOT label printer box with direct thermal label pack.',
+  },
+  {
+    id: 'review-5844',
+    src: '/reviews/img_5844.jpg',
+    title: 'Large order arrival',
+    tag: 'Delivery',
+    description: 'Customer order arrival; stacked plastic trays filled with vials next to a shipping box.',
+  },
+  {
+    id: 'review-5845',
+    src: '/reviews/img_5845.jpg',
+    title: 'Raffle appreciation',
+    tag: 'Community',
+    description: 'Customer appreciation for a raffle win, including a WhatsApp message.',
+  },
+  {
+    id: 'review-5846',
+    src: '/reviews/img_5846.jpg',
+    title: 'First-time buyer',
+    tag: 'Delivery',
+    description: 'Customer first order; plastic case with multiple vials and a labeled bacteriostatic water box.',
+  },
+  {
+    id: 'review-5847',
+    src: '/reviews/img_5847.jpg',
+    title: 'Order received outdoors',
+    tag: 'Delivery',
+    description: 'Customer received order outdoors; hand holding a purple bubble mailer with fragile and thank-you stickers.',
+  },
+  {
+    id: 'review-5848',
+    src: '/reviews/img_5848.jpg',
+    title: 'Group buy received',
+    tag: 'Delivery',
+    description: 'Customer group buy received; spread of vials and labeled cases including TR20 and TR30.',
+  },
+]
+
 function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
   const [isMemberInfoOpen, setIsMemberInfoOpen] = useState(false)
+  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false)
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false)
+  const [accessCode, setAccessCode] = useState('')
+  const [accessError, setAccessError] = useState('')
   const [view, setView] = useState('home')
+  const [activeReview, setActiveReview] = useState(null)
+  const [reviewFilter, setReviewFilter] = useState('all')
   const [orderItems, setOrderItems] = useState([
     { id: 1, productId: '', qty: 1 },
   ])
@@ -208,7 +308,8 @@ function App() {
 
   useEffect(() => {
     const syncView = () => {
-      const nextView = window.location.hash === '#order' ? 'order' : 'home'
+      const hash = window.location.hash
+      const nextView = hash === '#order' ? 'order' : hash === '#reviews' ? 'reviews' : 'home'
       setView(nextView)
     }
     syncView()
@@ -242,6 +343,14 @@ function App() {
 
     button.appendChild(ripple)
     setTimeout(() => ripple.remove(), 600)
+  }
+
+  const handleProtectedLink = (e) => {
+    handleRipple(e)
+    e.preventDefault()
+    setAccessCode('')
+    setAccessError('')
+    setIsCodeModalOpen(true)
   }
 
   const toggleAdmin = (e) => {
@@ -318,6 +427,10 @@ function App() {
   const shippingFee = 500
   const orderTotal = orderSubtotal + shippingFee
   const formatCurrency = (value) => `PHP ${value.toFixed(2)}`
+  const filteredReviews = customerReviews.filter((review) => {
+    if (reviewFilter === 'all') return true
+    return review.tag.toLowerCase() === reviewFilter
+  })
 
   return (
     <div className="container">
@@ -396,10 +509,24 @@ function App() {
               ))}
 
               <a
+                href="https://docs.google.com/document/d/13ZxEBVB8vavnWMsOn0btVwSt4k2tV45v/edit"
+                className="link-btn"
+                id="access-doc"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ animationDelay: '0.4s' }}
+                onClick={handleProtectedLink}
+              >
+                <span className="btn-icon">🔐</span>
+                <span className="btn-text">Access to Advance Peptide Masterclass</span>
+                <span className="btn-arrow">→</span>
+              </a>
+
+              <a
                 href="#order"
                 className="link-btn"
                 id="order-calculator"
-                style={{ animationDelay: '0.4s' }}
+                style={{ animationDelay: '0.5s' }}
                 onClick={handleRipple}
               >
                 <span className="btn-icon">🧾</span>
@@ -407,8 +534,20 @@ function App() {
                 <span className="btn-arrow">→</span>
               </a>
 
+              <a
+                href="#reviews"
+                className="link-btn"
+                id="customer-reviews"
+                style={{ animationDelay: '0.6s' }}
+                onClick={handleRipple}
+              >
+                <span className="btn-icon">⭐</span>
+                <span className="btn-text">Customer Reviews</span>
+                <span className="btn-arrow">→</span>
+              </a>
+
               {/* Admin Dropdown */}
-              <div className="admin-dropdown" style={{ animationDelay: '0.5s' }}>
+              <div className="admin-dropdown" style={{ animationDelay: '0.7s' }}>
                 <button
                   className={`link-btn admin-toggle ${isAdminOpen ? 'active' : ''}`}
                   onClick={toggleAdmin}
@@ -474,6 +613,94 @@ function App() {
                       <p>Ensures your provider is committed to the highest standards of clinical practice.</p>
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {isAccessModalOpen && (
+              <div className="modal-overlay" onClick={() => setIsAccessModalOpen(false)}>
+                <div className="modal-content modal-access" onClick={(e) => e.stopPropagation()}>
+                  <button className="modal-close" onClick={() => setIsAccessModalOpen(false)}>×</button>
+                  <h2 className="modal-title">Hello 🤍</h2>
+                  <div className="modal-body modal-message">
+                    <p>
+                      You can now access <em>Advanced Peptide Certification</em> (online) as a perk of being part of
+                      our community 🤍
+                    </p>
+                    <p>
+                      This is a free perk for being part of this space. No extra cost, just something we wanted to give
+                      back and add more value for everyone who’s been here and supporting.
+                    </p>
+                    <p className="modal-highlight">
+                      Quick reminder though, please keep this as private as possible. The materials are
+                      <strong> exclusive to our community</strong> and have a watermark in place, so they can’t be
+                      shared or distributed to other groups or communities. We really trust you guys on this, and it
+                      helps us continue providing things like this moving forward.
+                    </p>
+                    <p>Thank you!</p>
+                  </div>
+                  <div className="modal-actions">
+                    <a
+                      className="modal-primary"
+                      href="https://docs.google.com/document/d/13ZxEBVB8vavnWMsOn0btVwSt4k2tV45v/edit"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open Certification
+                    </a>
+                    <button className="modal-secondary" onClick={() => setIsAccessModalOpen(false)}>
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isCodeModalOpen && (
+              <div className="modal-overlay" onClick={() => setIsCodeModalOpen(false)}>
+                <div className="modal-content modal-code" onClick={(e) => e.stopPropagation()}>
+                  <button className="modal-close" onClick={() => setIsCodeModalOpen(false)}>×</button>
+                  <h2 className="modal-title">Enter Access Code</h2>
+                  <p className="modal-subtitle">Use the community code to unlock the certification.</p>
+                  <form
+                    className="code-form"
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      if (!accessCode.trim()) {
+                        setAccessError('Please enter the access code.')
+                        return
+                      }
+                      if (accessCode.trim() === 'MMG082025') {
+                        setIsCodeModalOpen(false)
+                        setIsAccessModalOpen(true)
+                        setAccessError('')
+                        return
+                      }
+                      setAccessError('Incorrect access code.')
+                    }}
+                  >
+                    <label className="code-label" htmlFor="access-code-input">Access Code</label>
+                    <input
+                      id="access-code-input"
+                      className="code-input"
+                      type="password"
+                      placeholder="Enter code"
+                      value={accessCode}
+                      onChange={(e) => setAccessCode(e.target.value)}
+                      autoFocus
+                    />
+                    {accessError && <div className="code-error">{accessError}</div>}
+                    <div className="modal-actions">
+                      <button className="modal-primary" type="submit">Unlock</button>
+                      <button
+                        className="modal-secondary"
+                        type="button"
+                        onClick={() => setIsCodeModalOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
@@ -618,6 +845,103 @@ function App() {
               <p className="summary-note">Final total may change based on availability, shipping, and updates.</p>
             </div>
           </section>
+        )}
+
+        {view === 'reviews' && (
+          <section className="reviews-page" id="reviews">
+            <button
+              className="back-btn"
+              onClick={() => { window.location.hash = '' }}
+            >
+              ← Back to Links
+            </button>
+            <div className="reviews-hero">
+              <div>
+                <p className="section-eyebrow">Customer Reviews</p>
+                <h2 className="section-title">Community wins and real deliveries</h2>
+                <p className="section-subtitle">
+                  Screenshots from the community showing raffle wins, delivery proofs, and progress updates.
+                </p>
+              </div>
+              <div className="review-highlights" role="tablist" aria-label="Review filters">
+                <button
+                  className={`review-chip ${reviewFilter === 'delivery' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setReviewFilter('delivery')}
+                  role="tab"
+                  aria-selected={reviewFilter === 'delivery'}
+                >
+                  Verified deliveries
+                </button>
+                <button
+                  className={`review-chip ${reviewFilter === 'raffle win' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setReviewFilter('raffle win')}
+                  role="tab"
+                  aria-selected={reviewFilter === 'raffle win'}
+                >
+                  Raffle wins
+                </button>
+                <button
+                  className={`review-chip ${reviewFilter === 'result update' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setReviewFilter('result update')}
+                  role="tab"
+                  aria-selected={reviewFilter === 'result update'}
+                >
+                  Progress updates
+                </button>
+                <button
+                  className={`review-chip ${reviewFilter === 'all' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setReviewFilter('all')}
+                  role="tab"
+                  aria-selected={reviewFilter === 'all'}
+                >
+                  All
+                </button>
+              </div>
+            </div>
+
+            <div className="reviews-grid">
+              {filteredReviews.map((review) => (
+                <figure className="review-card" key={review.id}>
+                  <button
+                    className="review-media"
+                    type="button"
+                    onClick={() => setActiveReview(review)}
+                    aria-label={`Open ${review.title}`}
+                  >
+                    <img src={review.src} alt={review.description} loading="lazy" />
+                    <span className="review-tag">{review.tag}</span>
+                  </button>
+                  <figcaption className="review-caption">
+                    <h3>{review.title}</h3>
+                    <p>{review.description}</p>
+                  </figcaption>
+                </figure>
+              ))}
+              {filteredReviews.length === 0 && (
+                <div className="review-empty">No reviews for this filter yet.</div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {activeReview && (
+          <div className="modal-overlay" onClick={() => setActiveReview(null)}>
+            <div className="modal-content modal-review" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setActiveReview(null)}>×</button>
+              <div className="review-lightbox">
+                <img src={activeReview.src} alt={activeReview.description} />
+              </div>
+              <div className="review-lightbox-meta">
+                <span className="review-tag">{activeReview.tag}</span>
+                <h3>{activeReview.title}</h3>
+                <p>{activeReview.description}</p>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Footer */}
