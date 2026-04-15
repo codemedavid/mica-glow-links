@@ -267,7 +267,6 @@ function App() {
   const [accessError, setAccessError] = useState('')
   const [view, setView] = useState('home')
   const [activeReview, setActiveReview] = useState(null)
-  const [reviewFilter, setReviewFilter] = useState('all')
   const [orderItems, setOrderItems] = useState([
     { id: 1, productId: '', qty: 1 },
   ])
@@ -412,10 +411,6 @@ function App() {
   const shippingFee = 500
   const orderTotal = orderSubtotal + shippingFee
   const formatCurrency = (value) => `PHP ${value.toFixed(2)}`
-  const filteredReviews =
-    reviewFilter === 'all'
-      ? allCustomerReviews
-      : allCustomerReviews.filter((review) => review.tag.toLowerCase() === reviewFilter)
 
   return (
     <div className="container">
@@ -848,48 +843,10 @@ function App() {
                   Screenshots from the community showing raffle wins, delivery proofs, and customer journeys.
                 </p>
               </div>
-              <div className="review-highlights" role="tablist" aria-label="Review filters">
-                <button
-                  className={`review-chip ${reviewFilter === 'delivery' ? 'active' : ''}`}
-                  type="button"
-                  onClick={() => setReviewFilter('delivery')}
-                  role="tab"
-                  aria-selected={reviewFilter === 'delivery'}
-                >
-                  Verified deliveries
-                </button>
-                <button
-                  className={`review-chip ${reviewFilter === 'raffle win' ? 'active' : ''}`}
-                  type="button"
-                  onClick={() => setReviewFilter('raffle win')}
-                  role="tab"
-                  aria-selected={reviewFilter === 'raffle win'}
-                >
-                  Raffle wins
-                </button>
-                <button
-                  className={`review-chip ${reviewFilter === 'customer journey' ? 'active' : ''}`}
-                  type="button"
-                  onClick={() => setReviewFilter('customer journey')}
-                  role="tab"
-                  aria-selected={reviewFilter === 'customer journey'}
-                >
-                  Customer journeys
-                </button>
-                <button
-                  className={`review-chip ${reviewFilter === 'all' ? 'active' : ''}`}
-                  type="button"
-                  onClick={() => setReviewFilter('all')}
-                  role="tab"
-                  aria-selected={reviewFilter === 'all'}
-                >
-                  All
-                </button>
-              </div>
             </div>
 
             <div className="reviews-grid">
-              {filteredReviews.map((review) => (
+              {allCustomerReviews.map((review) => (
                 <figure className="review-card" key={review.id}>
                   <button
                     className="review-media"
@@ -901,7 +858,7 @@ function App() {
                   </button>
                 </figure>
               ))}
-              {filteredReviews.length === 0 && (
+              {allCustomerReviews.length === 0 && (
                 <div className="review-empty">No reviews for this filter yet.</div>
               )}
             </div>
