@@ -1182,38 +1182,6 @@ body {
   height: auto;
 }
 
-.review-tag {
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  background: rgba(10, 6, 20, 0.75);
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  color: var(--text-primary);
-}
-
-.review-caption {
-  padding: 16px;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.review-caption h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.review-caption p {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-}
-
 .review-empty {
   grid-column: 1 / -1;
   padding: 16px;

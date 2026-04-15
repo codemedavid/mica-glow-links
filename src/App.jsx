@@ -179,99 +179,84 @@ const products = [
   { id: "XT100", name: "XT100 - Botulinum toxin", price: 1215.2 },
 ]
 
-const customerReviews = [
+const customerJourneyReviews = Array.from({ length: 50 }, (_, index) => {
+  const number = String(index + 1).padStart(2, '0')
+  return {
+    id: `customer-journey-${number}`,
+    src: `/reviews/customer-journey-${number}.jpg`,
+    tag: 'Customer journey',
+  }
+})
+
+const baseCustomerReviews = [
   {
     id: 'review-5836',
     src: '/reviews/img_5836.jpg',
-    title: 'Order received',
     tag: 'Delivery',
-    description: 'Customer thanks the admin for help; photo of many labeled vials arranged on a table with a Good Morning sign.',
   },
   {
     id: 'review-5837',
     src: '/reviews/img_5837.jpg',
-    title: 'Raffle win TR30',
     tag: 'Raffle win',
-    description: 'Customer raffle prize; close-up of a TR30 30mg vial box with red caps.',
   },
   {
     id: 'review-5838',
     src: '/reviews/img_5838.jpg',
-    title: 'Raffle prize scale',
     tag: 'Raffle win',
-    description: 'Customer raffle prize; Xiaomi body composition scale box on a desk.',
   },
   {
     id: 'review-5839',
     src: '/reviews/img_5839.jpg',
-    title: 'Progress update',
-    tag: 'Result update',
-    description: 'Customer shares a 3-month journey; progress photo is intentionally obscured for privacy.',
+    tag: 'Customer journey',
   },
   {
     id: 'review-5840',
     src: '/reviews/img_5840.jpg',
-    title: 'Raffle TR30 pack',
     tag: 'Raffle win',
-    description: 'Customer raffle TR30; plastic cases of vials with blue and pink caps.',
   },
   {
     id: 'review-5841',
     src: '/reviews/img_5841.jpg',
-    title: 'Package received',
     tag: 'Delivery',
-    description: 'Customer package received; purple bubble mailer with a thank-you sticker.',
   },
   {
     id: 'review-5842',
     src: '/reviews/img_5842.jpg',
-    title: 'Fragile delivery',
     tag: 'Delivery',
-    description: 'Customer delivery; padded package labeled fragile with an order list taped on top.',
   },
   {
     id: 'review-5843',
     src: '/reviews/img_5843.jpg',
-    title: 'Label printer prize',
     tag: 'Raffle win',
-    description: 'Customer raffle prize; NIIMBOT label printer box with direct thermal label pack.',
   },
   {
     id: 'review-5844',
     src: '/reviews/img_5844.jpg',
-    title: 'Large order arrival',
     tag: 'Delivery',
-    description: 'Customer order arrival; stacked plastic trays filled with vials next to a shipping box.',
   },
   {
     id: 'review-5845',
     src: '/reviews/img_5845.jpg',
-    title: 'Raffle appreciation',
     tag: 'Community',
-    description: 'Customer appreciation for a raffle win, including a WhatsApp message.',
   },
   {
     id: 'review-5846',
     src: '/reviews/img_5846.jpg',
-    title: 'First-time buyer',
     tag: 'Delivery',
-    description: 'Customer first order; plastic case with multiple vials and a labeled bacteriostatic water box.',
   },
   {
     id: 'review-5847',
     src: '/reviews/img_5847.jpg',
-    title: 'Order received outdoors',
     tag: 'Delivery',
-    description: 'Customer received order outdoors; hand holding a purple bubble mailer with fragile and thank-you stickers.',
   },
   {
     id: 'review-5848',
     src: '/reviews/img_5848.jpg',
-    title: 'Group buy received',
     tag: 'Delivery',
-    description: 'Customer group buy received; spread of vials and labeled cases including TR20 and TR30.',
   },
 ]
+
+const allCustomerReviews = [...baseCustomerReviews, ...customerJourneyReviews]
 
 function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
@@ -427,10 +412,10 @@ function App() {
   const shippingFee = 500
   const orderTotal = orderSubtotal + shippingFee
   const formatCurrency = (value) => `PHP ${value.toFixed(2)}`
-  const filteredReviews = customerReviews.filter((review) => {
-    if (reviewFilter === 'all') return true
-    return review.tag.toLowerCase() === reviewFilter
-  })
+  const filteredReviews =
+    reviewFilter === 'all'
+      ? allCustomerReviews
+      : allCustomerReviews.filter((review) => review.tag.toLowerCase() === reviewFilter)
 
   return (
     <div className="container">
@@ -858,9 +843,9 @@ function App() {
             <div className="reviews-hero">
               <div>
                 <p className="section-eyebrow">Customer Reviews</p>
-                <h2 className="section-title">Community wins and real deliveries</h2>
+                <h2 className="section-title">Community wins, real deliveries, and customer journeys</h2>
                 <p className="section-subtitle">
-                  Screenshots from the community showing raffle wins, delivery proofs, and progress updates.
+                  Screenshots from the community showing raffle wins, delivery proofs, and customer journeys.
                 </p>
               </div>
               <div className="review-highlights" role="tablist" aria-label="Review filters">
@@ -883,13 +868,13 @@ function App() {
                   Raffle wins
                 </button>
                 <button
-                  className={`review-chip ${reviewFilter === 'result update' ? 'active' : ''}`}
+                  className={`review-chip ${reviewFilter === 'customer journey' ? 'active' : ''}`}
                   type="button"
-                  onClick={() => setReviewFilter('result update')}
+                  onClick={() => setReviewFilter('customer journey')}
                   role="tab"
-                  aria-selected={reviewFilter === 'result update'}
+                  aria-selected={reviewFilter === 'customer journey'}
                 >
-                  Progress updates
+                  Customer journeys
                 </button>
                 <button
                   className={`review-chip ${reviewFilter === 'all' ? 'active' : ''}`}
@@ -910,15 +895,10 @@ function App() {
                     className="review-media"
                     type="button"
                     onClick={() => setActiveReview(review)}
-                    aria-label={`Open ${review.title}`}
+                    aria-label="Open review image"
                   >
-                    <img src={review.src} alt={review.description} loading="lazy" />
-                    <span className="review-tag">{review.tag}</span>
+                    <img src={review.src} alt="Customer review image" loading="lazy" />
                   </button>
-                  <figcaption className="review-caption">
-                    <h3>{review.title}</h3>
-                    <p>{review.description}</p>
-                  </figcaption>
                 </figure>
               ))}
               {filteredReviews.length === 0 && (
@@ -933,12 +913,7 @@ function App() {
             <div className="modal-content modal-review" onClick={(e) => e.stopPropagation()}>
               <button className="modal-close" onClick={() => setActiveReview(null)}>×</button>
               <div className="review-lightbox">
-                <img src={activeReview.src} alt={activeReview.description} />
-              </div>
-              <div className="review-lightbox-meta">
-                <span className="review-tag">{activeReview.tag}</span>
-                <h3>{activeReview.title}</h3>
-                <p>{activeReview.description}</p>
+                <img src={activeReview.src} alt="Customer review image" />
               </div>
             </div>
           </div>
