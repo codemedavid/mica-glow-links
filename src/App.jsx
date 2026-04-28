@@ -10,7 +10,7 @@ const links = [
 
 const adminLinks = [
   { id: 'admin-phoebe', text: 'Admin Phoebe', href: 'https://api.whatsapp.com/send?phone=639686450947' },
-  { id: 'admin-glia', text: 'Admin Glia', href: 'https://api.whatsapp.com/send?phone=639758609769' },
+  { id: 'admin-glia', text: 'Admin Glia', href: 'https://api.whatsapp.com/send?phone=639062364792' },
   { id: 'admin-james', text: 'Admin James', href: 'https://api.whatsapp.com/send?phone=639054620846' },
   { id: 'admin-jec', text: 'Admin Jec', href: 'https://api.whatsapp.com/send?phone=639611521891' },
   { id: 'admin-teddy', text: 'Admin Teddy', href: 'https://api.whatsapp.com/send?phone=639615431545' },
