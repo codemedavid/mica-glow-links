@@ -177,84 +177,14 @@ const products = [
   { id: "XT100", name: "XT100 - Botulinum toxin", price: 1274.0 },
 ]
 
-const customerJourneyReviews = Array.from({ length: 50 }, (_, index) => {
+const allCustomerReviews = Array.from({ length: 63 }, (_, index) => {
   const number = String(index + 1).padStart(2, '0')
   return {
-    id: `customer-journey-${number}`,
-    src: `/reviews/customer-journey-${number}.jpg`,
-    tag: 'Customer journey',
+    id: `review-${number}`,
+    src: `/reviews/review-${number}.jpg`,
+    tag: 'Customer review',
   }
 })
-
-const baseCustomerReviews = [
-  {
-    id: 'review-5836',
-    src: '/reviews/img_5836.jpg',
-    tag: 'Delivery',
-  },
-  {
-    id: 'review-5837',
-    src: '/reviews/img_5837.jpg',
-    tag: 'Raffle win',
-  },
-  {
-    id: 'review-5838',
-    src: '/reviews/img_5838.jpg',
-    tag: 'Raffle win',
-  },
-  {
-    id: 'review-5839',
-    src: '/reviews/img_5839.jpg',
-    tag: 'Customer journey',
-  },
-  {
-    id: 'review-5840',
-    src: '/reviews/img_5840.jpg',
-    tag: 'Raffle win',
-  },
-  {
-    id: 'review-5841',
-    src: '/reviews/img_5841.jpg',
-    tag: 'Delivery',
-  },
-  {
-    id: 'review-5842',
-    src: '/reviews/img_5842.jpg',
-    tag: 'Delivery',
-  },
-  {
-    id: 'review-5843',
-    src: '/reviews/img_5843.jpg',
-    tag: 'Raffle win',
-  },
-  {
-    id: 'review-5844',
-    src: '/reviews/img_5844.jpg',
-    tag: 'Delivery',
-  },
-  {
-    id: 'review-5845',
-    src: '/reviews/img_5845.jpg',
-    tag: 'Community',
-  },
-  {
-    id: 'review-5846',
-    src: '/reviews/img_5846.jpg',
-    tag: 'Delivery',
-  },
-  {
-    id: 'review-5847',
-    src: '/reviews/img_5847.jpg',
-    tag: 'Delivery',
-  },
-  {
-    id: 'review-5848',
-    src: '/reviews/img_5848.jpg',
-    tag: 'Delivery',
-  },
-]
-
-const allCustomerReviews = [...baseCustomerReviews, ...customerJourneyReviews]
 
 function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
