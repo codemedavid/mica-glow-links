@@ -1,0 +1,679 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/data/products.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/data</a> products.js</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>196/196</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>196/196</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Product catalogue for the Order Calculator.
+// Extracted from "Mica Pricelist August 4.xlsx" (sheet: Updated Pricelist).
+// Prices are per-vial in PHP, taken from the sheet's "Per vial cost" column.
+// stock: "in" | "low" | "out" | "unknown" — derived from the on-hand columns.
+&nbsp;
+/**
+ * @typedef {Object} Product
+ * @property {string} code   Short SKU shown as a badge (e.g. "TR5").
+ * @property {string} name   Human-readable product name.
+ * @property {string|null} spec  Dosage / packaging detail, when available.
+ * @property {number} vial   Price per vial in PHP.
+ * @property {"in"|"low"|"out"|"unknown"} stock  Availability status.
+ */
+&nbsp;
+/** @type {readonly Product[]} */
+export const products = [
+  { code: "BA3PH", name: "BAPH pharma-grade bacteriostatic sterile water + 0.9% Benzyl Alcohol", spec: null, vial: 65, stock: "in" },
+  { code: "BA5PH", name: "BAPH pharma-grade bacteriostatic sterile water + 0.9% Benzyl Alcohol", spec: null, vial: 78, stock: "low" },
+  { code: "BA10PH", name: "BAPH pharma-grade bacteriostatic sterile water + 0.9% Benzyl Alcohol", spec: null, vial: 110.5, stock: "in" },
+  { code: "BA3PHRMAGREEN", name: "BAPH pharma-grade bacteriostatic sterile water + 0.9% Benzyl Alcohol (RMA Green)", spec: null, vial: 85, stock: "unknown" },
+  { code: "BA10PHRMAGREEN", name: "BAPH pharma-grade bacteriostatic sterile water + 0.9% Benzyl Alcohol (RMA Green)", spec: null, vial: 149.9, stock: "unknown" },
+  { code: "WA3", name: "Phosphate Buffered Saline 3ml - topical use / one-time inject use for botox", spec: "3 ml/vial, 10 vials/kits", vial: 45.5, stock: "in" },
+  { code: "WA10", name: "Phosphate Buffered Saline 10ml - topical use / one-time inject use for botox", spec: "10 ml/vial, 10 vials/kits", vial: 58.5, stock: "in" },
+  { code: "SM2", name: "Semaglutide", spec: "2 mg/vial，10vial/kit", vial: 526.5, stock: "out" },
+  { code: "SM55", name: "Semaglutide", spec: "5 mg/vial，10vial/kit", vial: 539.5, stock: "out" },
+  { code: "SM10", name: "Semaglutide", spec: "10 mg/vial，10vial/kit", vial: 591.5, stock: "low" },
+  { code: "SM15", name: "Semaglutide", spec: "15 mg/vial，10vial/kit", vial: 682.5, stock: "out" },
+  { code: "SM20", name: "Semaglutide", spec: "15 mg/vial，10vial/kit", vial: 799.5, stock: "out" },
+  { code: "SM30", name: "Semaglutide", spec: "30 mg/vial，10vial/kit", vial: 942.5, stock: "out" },
+  { code: "TR5", name: "Tirzepatide", spec: "5 mg/vial, 10 vials/kits", vial: 422.5, stock: "low" },
+  { code: "TR10", name: "Tirzepatide", spec: "10 mg/vial, 10 vials/kits", vial: 520, stock: "low" },
+  { code: "TR15", name: "Tirzepatide", spec: "15 mg/vial, 10 vials/kits", vial: 695.5, stock: "in" },
+  { code: "TR20", name: "Tirzepatide", spec: "20 mg/vial, 10 vials/kits", vial: 780, stock: "low" },
+  { code: "TR30", name: "Tirzepatide", spec: "30 mg/vial, 10 vials/kits", vial: 929.5, stock: "low" },
+  { code: "TR40", name: "Tirzepatide", spec: "40 mg/vial, 10 vials/kits", vial: 1118, stock: "low" },
+  { code: "TR50", name: "Tirzepatide", spec: "50 mg/vial, 10 vials/kits", vial: 1319.5, stock: "low" },
+  { code: "TR60", name: "Tirzepatide", spec: "60 mg/vial, 10 vials/kits", vial: 1579.5, stock: "low" },
+  { code: "TR100", name: "Tirzepatide", spec: "100 mg/vial, 10 vials/kits", vial: 2535, stock: "unknown" },
+  { code: "RT5", name: "Retatrutide", spec: "5 mg/vial, 10 vials/kits", vial: 617.5, stock: "out" },
+  { code: "RT10", name: "Retatrutide", spec: "10 mg/vial, 10 vials/kits", vial: 838.5, stock: "low" },
+  { code: "RT15", name: "Retatrutide", spec: "15 mg/vial, 10 vials/kits", vial: 1033.5, stock: "low" },
+  { code: "RT20", name: "Retatrutide", spec: "20 mg/vial, 10 vials/kits", vial: 1202.5, stock: "out" },
+  { code: "RT30", name: "Retatrutide", spec: "30 mg/vial, 10 vials/kits", vial: 1495, stock: "in" },
+  { code: "RT60", name: "Retatrutide", spec: "60 mg/vial, 10 vials/kits", vial: 2600, stock: "out" },
+  { code: "ML10", name: "MT-2 (Melanotan 2 Acetate)", spec: "10 mg/vial, 10 vials/kits", vial: 435.5, stock: "out" },
+  { code: "IP5", name: "Ipamorelin", spec: "5 mg/vial, 10 vials/kits", vial: 409.5, stock: "out" },
+  { code: "IP10", name: "Ipamorelin", spec: "10 mg/vial, 10 vials/kits", vial: 617.5, stock: "low" },
+  { code: "BC5", name: "BPC-157", spec: "5 mg/vial, 10 vials/kits", vial: 429, stock: "low" },
+  { code: "BC10", name: "BPC-157", spec: "10 mg/vial, 10 vials/kits", vial: 565.5, stock: "low" },
+  { code: "BT5", name: "TB-500", spec: "5 mg/vial, 10 vials/kits", vial: 604.5, stock: "out" },
+  { code: "BT10", name: "TB-500", spec: "10 mg/vial, 10 vials/kits", vial: 1027, stock: "low" },
+  { code: "BB10", name: "BPC 5mg + TB 5mg", spec: "10 mg/vial, 10 vials/kits", vial: 806, stock: "low" },
+  { code: "BB20", name: "BPC 10mg + TB 10mg", spec: "20 mg/vial, 10 vials/kits", vial: 1456, stock: "low" },
+  { code: "2AD", name: "AOD-9604 2mg", spec: "2 mg/vial, 10 vials/kits", vial: 520, stock: "out" },
+  { code: "5AD", name: "AOD-9604 5mg", spec: "5 mg/vial, 10 vials/kits", vial: 715, stock: "out" },
+  { code: "10AD", name: "AOD-9604 10mg", spec: "10 mg/vial, 10 vials/kits", vial: 1105, stock: "out" },
+  { code: "G5K", name: "HCG", spec: "5000 iu, 10 vials/kits", vial: 715, stock: "out" },
+  { code: "G10K", name: "HCG", spec: "10000 iu, 10 vials/kits", vial: 1267.5, stock: "out" },
+  { code: "P41", name: "PT-141", spec: "10 mg/vial, 10 vials/kits", vial: 565.5, stock: "low" },
+  { code: "DS5", name: "DSIP", spec: "5 mg/vial, 10 vials/kits", vial: 429, stock: "in" },
+  { code: "SK5", name: "Selank", spec: "5 mg/vial, 10 vials/kits", vial: 416, stock: "low" },
+  { code: "SK10", name: "Selank", spec: "10 mg/vial, 10 vials/kits", vial: 585, stock: "low" },
+  { code: "OT2", name: "Oxytocin", spec: "2 mg/vial, 10 vials/kits", vial: 390, stock: "low" },
+  { code: "ET10", name: "Epitalon", spec: "10 mg/vial, 10 vials/kits", vial: 468, stock: "low" },
+  { code: "ET50", name: "Epitalon", spec: "50 mg/vial, 10 vials/kits", vial: 1137.5, stock: "low" },
+  { code: "AP2", name: "Adipotide", spec: "2 mg/vial, 10 vials/kits", vial: 682.5, stock: "out" },
+  { code: "AP5", name: "Adipotide", spec: "5 mg/vial, 10 vials/kits", vial: 1345.5, stock: "out" },
+  { code: "XA5", name: "Semax", spec: "5 mg/vial, 10 vials/kits", vial: 357.5, stock: "low" },
+  { code: "XA10", name: "Semax", spec: "10 mg/vial, 10 vials/kits", vial: 552.5, stock: "low" },
+  { code: "2S10", name: "SS-31 10mg", spec: "10 mg/vial, 10 vials/kits", vial: 728, stock: "low" },
+  { code: "2S50", name: "SS-31 50mg", spec: "50 mg/vial, 10 vials/kits", vial: 2470, stock: "low" },
+  { code: "G65", name: "GHRP-6 Acetate 5mg", spec: "5 mg/vial, 10 vials/kits", vial: 520, stock: "out" },
+  { code: "G610", name: "GHRP-6 Acetate 10mg", spec: "10 mg/vial, 10 vials/kits", vial: 487.5, stock: "out" },
+  { code: "CND5", name: "CJC- NO dac", spec: "5 mg/vial, 10 vials/kits", vial: 637, stock: "low" },
+  { code: "CND10", name: "CJC-1295 NO dac", spec: "10 mg/vial, 10 vials/kits", vial: 1300, stock: "out" },
+  { code: "CD5", name: "CJC-1295 With dac", spec: "5 mg/vial, 10 vials/kits", vial: 1235, stock: "out" },
+  { code: "CP10", name: "CJC-1295 without DAC + IPA", spec: "5mg + 5mg, 10 vials/kits", vial: 1462.5, stock: "low" },
+  { code: "SMO5", name: "Sermorelin Acetate 5 MG", spec: "5 mg/vial, 10 vials/kits", vial: 604.5, stock: "out" },
+  { code: "SMO10", name: "Sermorelin Acetate 10 MG", spec: "10 mg/vial, 10 vials/kits", vial: 942.5, stock: "out" },
+  { code: "IG01", name: "IGF-1LR3", spec: "(100mcg) 0.1 mg/vial, 10 vials/kits", vial: 416, stock: "out" },
+  { code: "IG1", name: "IGF-1", spec: "1 mg/vial, 10 vials/kits", vial: 1378, stock: "out" },
+  { code: "TSM5", name: "Tesamorelin", spec: "5 mg/vial, 10 vials/kits", vial: 812.5, stock: "low" },
+  { code: "TSM10", name: "Tesamorelin", spec: "10 mg/vial, 10 vials/kits", vial: 1397.5, stock: "in" },
+  { code: "HX5", name: "Hexarelin Acetate", spec: "10 mg/vial, 10 vials/kits", vial: 747.5, stock: "out" },
+  { code: "CU50", name: "GHK-CU", spec: "50 mg/vial, 10 vials/kits", vial: 357.5, stock: "low" },
+  { code: "CU100", name: "GHK-CU", spec: "100 mg/vial, 10 vials/kits", vial: 422.5, stock: "in" },
+  { code: "AU50", name: "AHK-CU 50mg - topical", spec: "50 mg/vial, 10 vials/kits", vial: 455, stock: "low" },
+  { code: "AU100", name: "AHK-CU 100mg - topical", spec: "100 mg/vial, 10 vials/kits", vial: 975, stock: "low" },
+  { code: "KS5", name: "KissPeptin-10 5 MG", spec: "5 mg/vial, 10 vials/kits", vial: 552.5, stock: "low" },
+  { code: "KS10", name: "KissPeptin-10", spec: "10 mg/vial, 10 vials/kits", vial: 975, stock: "low" },
+  { code: "TY10", name: "Thymalin", spec: "10 mg/vial, 10 vials/kits", vial: 520, stock: "out" },
+  { code: "TA5", name: "Thymosin Alpha-1", spec: "5 mg/vial, 10 vials/kits", vial: 747.5, stock: "in" },
+  { code: "TA10", name: "Thymosin Alpha-1", spec: "10 mg/vial, 10 vials/kits", vial: 1267.5, stock: "low" },
+  { code: "MS10", name: "MOTs-c", spec: "10 mg/vial, 10 vials/kits", vial: 552.5, stock: "low" },
+  { code: "MS40", name: "MOTs-c", spec: "40 mg/vial, 10 vials/kits - PH sensitive", vial: 1495, stock: "out" },
+  { code: "3710", name: "LL37", spec: "5 mg/vial, 10 vials/kits", vial: 650, stock: "low" },
+  { code: "MT10", name: "Melatonin", spec: "5 mg/vial, 10 vials/kits", vial: 487.5, stock: "out" },
+  { code: "DR5", name: "Dermorphin", spec: "5 mg/vial, 10 vials/kits", vial: 520, stock: "out" },
+  { code: "GP", name: "GLP-1", spec: "5 mg/vial, 10 vials/kits", vial: 806, stock: "out" },
+  { code: "GTT", name: "Glutathione", spec: "1500 mg/vial, 10 vials/kits", vial: 617.5, stock: "low" },
+  { code: "XT100", name: "Botulinum toxin", spec: "100 iu/vial, 10 vial/kits", vial: 1274, stock: "low" },
+  { code: "NJ100", name: "NAD+", spec: "100 mg/vial, 10 vials/kits", vial: 390, stock: "in" },
+  { code: "NJ500", name: "NAD+", spec: "500 mg/vial, 10 vials/kits", vial: 650, stock: "in" },
+  { code: "5AM.", name: "5-amino-5mg", spec: "5 mg/vial", vial: 598, stock: "in" },
+  { code: "10AM.", name: "5-amino-10mg", spec: "10 mg/vial", vial: 812.5, stock: "low" },
+  { code: "50AM.", name: "5-amino-50mg", spec: "50 mg/vial", vial: 1040, stock: "low" },
+  { code: "G75", name: "HMG", spec: "75 iu", vial: 585, stock: "out" },
+  { code: "E3K", name: "EPO", spec: "3000 iu", vial: 910, stock: "out" },
+  { code: "CBL60", name: "Cerebrolysin", spec: "60 mg, 6 vials", vial: 725.83, stock: "low" },
+  { code: "HA5", name: "Hyaluronic acid", spec: "1ml/vial", vial: 975, stock: "low" },
+  { code: "CGL5", name: "Cagrilintide", spec: "5 mg/vial, 10 vials/kits", vial: 923, stock: "low" },
+  { code: "CGL10", name: "Cagrilintide", spec: "10 mg/vial, 10 vials/kits", vial: 1339, stock: "low" },
+  { code: "RA10", name: "ARA-290", spec: "10 mg/vial, 10 vials/kits", vial: 520, stock: "low" },
+  { code: "NP810", name: "Snap-8 (topical)", spec: "10 mg/vial, 10 vials/kits - PBS", vial: 448.5, stock: "in" },
+  { code: "MDT10", name: "Mazdutide", spec: "10 mg/vial, 10 vials/kits", vial: 1592.5, stock: "out" },
+  { code: "KPV5", name: "KPV", spec: "5 mg/vial, 10 vials/kits", vial: 455, stock: "low" },
+  { code: "KPV10", name: "KPV", spec: "10 mg/vial, 10 vials/kits", vial: 585, stock: "low" },
+  { code: "LC120", name: "Lipo-C", spec: "10 ml/vial, 10 vials/kits", vial: 682.5, stock: "low" },
+  { code: "LC216", name: "Lipo-C with vitamins B12", spec: "10 ml/vial, 10 vials/kits", vial: 682.5, stock: "in" },
+  { code: "LC600", name: "L-Carnitine 600mg", spec: "10 ml/vial, 10 vials/kits", vial: 760.5, stock: "low" },
+  { code: "SUR10", name: "Survodutide", spec: "10 mg/vial, 10 vials/kits", vial: 2307.5, stock: "out" },
+  { code: "CS5", name: "Cagrilintide + Semaglutide", spec: "5 mg/vial, 10 vials/kits", vial: 942.5, stock: "out" },
+  { code: "CS10", name: "Cagrilintide + Semaglutide", spec: "10 mg/vial, 10 vials/kits", vial: 1560, stock: "low" },
+  { code: "BBG70", name: "GLOW (BPC-157 + GHK-CU + TB500)", spec: "70 mg/vial, 10 vials/kits", vial: 1430, stock: "in" },
+  { code: "KLOW80", name: "KLOW (CU50+TB10+BC10+KPV10)", spec: "80 mg/vial, 10 vials/kits", vial: 1820, stock: "in" },
+  { code: "PNC27", name: "PNC 27", spec: "5 mg/vial, 10 vials/kits", vial: 806, stock: "out" },
+  { code: "PNC27-10", name: "PNC 27", spec: "10 mg/vial, 10 vials/kits", vial: 1300, stock: "out" },
+  { code: "PI10", name: "Pinealon", spec: "10 mg/vial, 10 vials/kits", vial: 604.5, stock: "out" },
+  { code: "P20", name: "Pinealon", spec: "20 mg/vial, 10 vials/kits", vial: 793, stock: "out" },
+  { code: "H10", name: "HGH 191AA (Somatropin)", spec: "10 iu, 10 vials", vial: 520, stock: "out" },
+  { code: "H15", name: "HGH 191AA (Somatropin)", spec: "15 iu, 10 vials", vial: 650, stock: "out" },
+  { code: "FR5", name: "HGH Fragment 176-191", spec: "5 mg, 10 vials", vial: 741, stock: "unknown" },
+  { code: "LB", name: "10ML Lemon Bottle", spec: "10 ml, 10 bottles/kit", vial: 617.5, stock: "in" },
+  { code: "LB50", name: "50ML Lemon Bottle", spec: "50 ml, 10 bottles/kit", vial: 1170, stock: "low" },
+  { code: "VIP5", name: "Vasoactive Intestinal Peptide", spec: "5 mg/vial, 10 vials/kits", vial: 715, stock: "low" },
+  { code: "VIP10", name: "Vasoactive Intestinal Peptide", spec: "10 mg/vial, 10 vials/kits", vial: 1137.5, stock: "out" },
+  { code: "332", name: "SLU-PP-332", spec: "5 mg/vial, 10 vials/kits", vial: 1040, stock: "low" },
+  { code: "AA3", name: "Acetic Acid Water 0.6%", spec: "3 ml/vial, 10 vials/kits", vial: 52, stock: "low" },
+  { code: "AA10", name: "Acetic Acid Water 0.6%", spec: "10 ml/vial, 10 vials/kits", vial: 65, stock: "low" },
+  { code: "HHB", name: "Healthy Hair Skin Nails Blend", spec: "10ML X 150.3MG./ML/VIAL, 10 vials/kit", vial: 1820, stock: "in" },
+  { code: "LC526", name: "FAT BLASTER LIPO-C", spec: "10ml x 526mg/ml/vial, 10 vials/kit", vial: 1410.5, stock: "in" },
+  { code: "SBH", name: "Super Human Blend", spec: "10 ml./ 865mg", vial: 1033.5, stock: "low" },
+  { code: "VI120", name: "VILON", spec: "20mg, 10 vials", vial: 1215.5, stock: "out" },
+  { code: "PRO20", name: "Alpostadil", spec: "20mcg, 10 vials", vial: 1183, stock: "out" },
+  { code: "AD5", name: "Adamax", spec: "5mg, 10 vials", vial: 1579.5, stock: "out" },
+  { code: "PE10", name: "PE 22-88", spec: "10mg, 10 vials", vial: 845, stock: "out" },
+  { code: "HU10", name: "Humanin", spec: "10mg, 10 vials", vial: 1690, stock: "out" },
+  { code: "TER10", name: "Teriparatide", spec: "10mg, 10 vials", vial: 1787.5, stock: "out" },
+  { code: "BR20", name: "Bronchogen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "CA20", name: "Cardiogen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "COR20", name: "Cortagen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "LI20", name: "Livagen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "PA20", name: "Pancragen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "MAX20", name: "Prostamax", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "LAX20", name: "Cartalax", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "CH20", name: "Chonluten", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "CRY20", name: "Crystalagen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "OV20", name: "Ovagen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "VE20", name: "Vesugen", spec: "20mg, 10 vials", vial: 1189.5, stock: "out" },
+  { code: "XS20", name: "Semax 10mg + Selank 10mg", spec: "20mg, 10 vials", vial: 975, stock: "low" },
+  { code: "LL5", name: "Liraglutide", spec: "5mg, 10 vials", vial: 877.5, stock: "out" },
+  { code: "LL10", name: "Liraglutide", spec: "10mg, 10 vials", vial: 1631.5, stock: "out" },
+  { code: "LL30", name: "Liraglutide", spec: "30mg, 10 vials", vial: 1917.5, stock: "out" },
+  { code: "MA10", name: "Matrixyl (Topical)", spec: "10mg, 10 vials", vial: 390, stock: "low" },
+  { code: "PTD5", name: "PTD-DBM", spec: "5mg, 10 vials", vial: 2080, stock: "out" },
+  { code: "AUCG1G", name: "AHKCu Cosmetic Grade | 1 gram / topical", spec: "1g.", vial: 845, stock: "in" },
+  { code: "CUCG1G", name: "GHKCu Cosmetic Grade | 1 gram", spec: "1g.", vial: 455, stock: "in" },
+  { code: "PDRN", name: "PDRN Cosmetic Grade | 1 gram", spec: "1g.", vial: 715, stock: "in" },
+  { code: "MICABLEND", name: "KPV 10mg + GHKCu 50mg", spec: "60mg, 10 vials", vial: 949, stock: "low" },
+  { code: "MICABLEND 2.0", name: "TR 30mg + CGL 5mg", spec: "35mg, 10 vials", vial: 1690, stock: "unknown" },
+  { code: "MICABLEND 3.0", name: "GHKCu 100mg + KPV 20mg", spec: "120mg, 10 vials", vial: 1365, stock: "unknown" },
+  { code: "RETALIDE", name: "Retatrutide 30mg + Cagrilintide 5mg", spec: "35mg, 10 vials", vial: 2606.5, stock: "unknown" },
+  { code: "MICABLEND70", name: "Tirzepatide 60mg + Cagrilintide 10mg", spec: "70mg, 10 vials", vial: 2730, stock: "unknown" },
+  { code: "NXA30", name: "NA SEMAX AMIDATE", spec: "30mg, 10 vials", vial: 1547, stock: "out" },
+  { code: "NSK30", name: "NA SELANK AMIDATE", spec: "30mg, 10 vials", vial: 1547, stock: "out" },
+  { code: "PDRNSerum", name: "Pure PDRN Serum form 10 days use", spec: "PDRN Pink 10 Days Serum (1.5ml x 10ea)/box", vial: 910, stock: "low" },
+  { code: "SG01", name: "Whitening and Spot Fading Skinbooster(Topical)", spec: "3ml/10vials", vial: 390, stock: "low" },
+  { code: "SG02", name: "PDRN Skinbooster(Topical)", spec: "5ml/10 vials", vial: 390, stock: "low" },
+  { code: "SG03", name: "Collagen Skinbooster(Topical)", spec: null, vial: 520, stock: "in" },
+  { code: "SG04", name: "Pink Hyaluronic Acid Essence(Topical)", spec: "Contains PDRN, Hyaluronic Acid, Tranexamic Acid, B12, 3ml/10vials", vial: 390, stock: "out" },
+  { code: "NS10", name: "For Nasal Spray use - 0.9% Sodium Chloride Injection", spec: "10 mL ampoule, 0.9% (90 mg per 10 mL), 5 ampoules/pack", vial: 55, stock: "out" },
+  { code: "DHA20", name: "Dihexa", spec: "20mg x 25 tablets / bottle", vial: 15112.5, stock: "out" },
+  { code: "NCTF135HA", name: "135 HA - TOPICAL/ MICRONEEDLING / ID (Intradermal) USE ONLY", spec: "3ml - 0.10fl oz. / VIAL", vial: 477, stock: "out" },
+  { code: "SG05", name: "Acne Clearing Treatment Skinbooster (Topical)", spec: "5ml/10vials", vial: 390, stock: "in" },
+  { code: "SG06", name: "Periocular Anti-Wrinkle Peptide Serum", spec: "5ml/10vials", vial: 409, stock: "unknown" },
+  { code: "SG07", name: "NAD+ Skinbooster (Topical)", spec: "10ml/1vial", vial: 345, stock: "unknown" },
+  { code: "IS24", name: "MRDR Hair Growth Scalp Serum", spec: "3 vials/set x 8ml (24ml total)", vial: 1054, stock: "out" },
+  { code: "EXO30", name: "Stem-Cell Exosome Skin Booster", spec: "1 Kit", vial: 1499, stock: "unknown" },
+  { code: "SG08", name: "Blue Copper Peptide Solution Skin Booster", spec: "5ml/10vials", vial: 300, stock: "unknown" },
+  { code: "SG09", name: "Sodium Hyaluronic Liquid-Based Skin Booster", spec: "5ml/10vials", vial: 340, stock: "unknown" },
+  { code: "SG10", name: "Anti-Wrinkle Collagen Serum Skin Booster", spec: "5ml/10vials", vial: 300, stock: "unknown" },
+  { code: "MMG-BTN15K", name: "Mama Mica GLW Biotin with Collagen &amp; Keratin Beauty Complex", spec: "1 Bottle (30ml), 60 Capsules", vial: 499, stock: "in" },
+  { code: "TMB-GHKCU-SH250", name: "The Mica Blend GHK-Cu Shampoo 250ml", spec: null, vial: 799, stock: "unknown" },
+  { code: "TMB-GHKCND-CND250", name: "The Mica Blend GHK-Cu Conditioner 250ml", spec: null, vial: 699, stock: "unknown" },
+  { code: "TMB-AHKM100", name: "The Mica Blend AHK-Cu Scalp and Hair Mist 100ml", spec: null, vial: 599, stock: "unknown" },
+  { code: "TMB-NGO15", name: "The Mica Blend Nail Growth &amp; Strengthening Oil 15ml", spec: null, vial: 149, stock: "unknown" },
+  { code: "TMB-GHKSER30", name: "The Mica Blend GHK-Cu Serum 30ml", spec: null, vial: 299, stock: "unknown" },
+]
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-08-05T08:26:36.408Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

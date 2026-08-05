@@ -1,0 +1,372 @@
+/* Redesigned homepage links — grouped cards, icon tiles, group-buy banner.
+   Dark-purple glassmorphism, matched to the Links.dc.html design.
+   The avatar/logo is intentionally left to the existing App.css styles. */
+
+.home {
+  --home-card: rgba(46, 29, 84, 0.55);
+  --home-card-hover: rgba(70, 46, 124, 0.7);
+  --home-border: rgba(167, 139, 250, 0.24);
+  --home-border-hover: rgba(196, 181, 253, 0.5);
+  --home-icon-bg: rgba(124, 58, 237, 0.22);
+  --home-icon-border: rgba(167, 139, 250, 0.25);
+  --home-title: #f3efff;
+  --home-muted: #9c8fc4;
+  --home-chevron: #8d82ad;
+  --home-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Center the (untouched) avatar/logo within the stretch-aligned column */
+.home .avatar-container {
+  align-self: center;
+}
+
+/* Brand text (logo itself untouched) */
+.home-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  text-align: center;
+}
+
+.home-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #e9defc;
+  line-height: 1.1;
+}
+
+.home-eyebrow {
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: #a78bfa;
+  text-transform: uppercase;
+}
+
+.home-bio {
+  margin: 2px 0 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #bfb3e0;
+  text-wrap: pretty;
+}
+
+/* Group-buy banner */
+.group-buy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 18px;
+  text-decoration: none;
+  border: 1px solid rgba(217, 142, 253, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.42),
+    rgba(190, 64, 146, 0.32)
+  );
+  animation: home-banner-glow 2.6s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.group-buy-tag {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  font-weight: 800;
+  color: #d9c8ff;
+}
+
+.group-buy-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #86efac;
+  animation: home-pulse-dot 1.6s ease-out infinite;
+}
+
+.group-buy-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.group-buy-headline {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+
+.group-buy-cta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 22px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #4c1d95;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.group-buy-note {
+  font-size: 12px;
+  color: #cbb9f2;
+}
+
+/* Link groups */
+.home-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.home-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.home-group-label {
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  color: var(--home-muted);
+  padding-left: 6px;
+}
+
+.home-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border-radius: 16px;
+  text-decoration: none;
+  border: 1px solid var(--home-border);
+  background: var(--home-card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  position: relative;
+  overflow: hidden;
+  transition: background 200ms var(--home-ease),
+    border-color 200ms var(--home-ease), transform 200ms var(--home-ease);
+}
+
+.home-link:hover,
+.home-link:focus-visible {
+  background: var(--home-card-hover);
+  border-color: var(--home-border-hover);
+  outline: none;
+}
+
+.home-link:active {
+  transform: translateY(1px);
+}
+
+.home-link-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  background: var(--home-icon-bg);
+  border: 1px solid var(--home-icon-border);
+}
+
+.home-link-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home-link-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--home-title);
+}
+
+.home-link-desc {
+  font-size: 12.5px;
+  color: var(--home-muted);
+  line-height: 1.35;
+}
+
+.home-link-chevron {
+  flex: none;
+  color: var(--home-chevron);
+  font-size: 16px;
+  transition: transform 200ms var(--home-ease);
+}
+
+/* Consultation card — clinical mint accent so the medical CTA reads apart
+   from the violet commerce links instead of blending into the stack. */
+.home-link-consult {
+  --home-consult: rgba(94, 234, 212, 0.55);
+  border-color: rgba(94, 234, 212, 0.32);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 84, 84, 0.45),
+    rgba(46, 29, 84, 0.6)
+  );
+}
+
+.home-link-consult:hover,
+.home-link-consult:focus-visible {
+  border-color: var(--home-consult);
+  background: linear-gradient(
+    135deg,
+    rgba(20, 110, 108, 0.55),
+    rgba(70, 46, 124, 0.7)
+  );
+}
+
+.home-link-consult .home-link-icon {
+  background: rgba(94, 234, 212, 0.16);
+  border-color: rgba(94, 234, 212, 0.3);
+}
+
+.home-link-consult .home-link-desc {
+  color: #a5d9d2;
+}
+
+.home-link-consult .home-link-chevron {
+  color: #7fd1c4;
+}
+
+/* Admin dropdown as a group */
+.home-admin-toggle[aria-expanded='true'] .home-link-chevron {
+  transform: rotate(90deg);
+}
+
+.home-admin-menu {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 260ms var(--home-ease);
+}
+
+.home-admin-menu.open {
+  grid-template-rows: 1fr;
+}
+
+.home-admin-menu-inner {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-admin-menu.open .home-admin-menu-inner {
+  padding-top: 8px;
+}
+
+.home-admin-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  box-sizing: border-box;
+  padding: 10px 16px 10px 22px;
+  border-radius: 14px;
+  text-decoration: none;
+  border: 1px solid var(--home-border);
+  background: rgba(34, 21, 64, 0.5);
+  color: var(--home-title);
+  font-size: 14.5px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  transition: background 200ms var(--home-ease),
+    border-color 200ms var(--home-ease);
+}
+
+.home-admin-link:hover,
+.home-admin-link:focus-visible {
+  background: var(--home-card-hover);
+  border-color: var(--home-border-hover);
+  outline: none;
+}
+
+.home-admin-link .home-admin-icon {
+  flex: none;
+  font-size: 16px;
+}
+
+.home-admin-link .home-admin-name {
+  flex: 1;
+}
+
+.home-admin-link .home-link-chevron {
+  font-size: 15px;
+}
+
+.home-copyright {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--home-chevron);
+}
+
+@keyframes home-pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(134, 239, 172, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(134, 239, 172, 0);
+  }
+}
+
+@keyframes home-banner-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 24px rgba(196, 142, 253, 0.25), 0 8px 30px rgba(12, 5, 32, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(217, 142, 253, 0.45), 0 8px 30px rgba(12, 5, 32, 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group-buy,
+  .group-buy-dot {
+    animation: none;
+  }
+
+  .home-link,
+  .home-admin-link,
+  .home-admin-menu,
+  .home-link-chevron {
+    transition: none;
+  }
+}
