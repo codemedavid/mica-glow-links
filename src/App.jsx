@@ -4,7 +4,7 @@ import './App.css'
 import './components/home/home.css'
 import { OrderCalculator } from './components/order-calculator/OrderCalculator'
 
-const COMMUNITY_URL = 'https://chat.whatsapp.com/HLcm60pw6DAKKnqs32ePBM?mode=gi_t'
+const COMMUNITY_URL = 'https://t.me/+YqOUF5FOwK9jNDE9'
 const MASTERCLASS_URL =
   'https://docs.google.com/document/d/13ZxEBVB8vavnWMsOn0btVwSt4k2tV45v/edit'
 const CONSULTATION_URL = 'https://nowserving.seriousmd.com/doctor/andrei-francis-flandes'
@@ -56,7 +56,7 @@ const linkGroups = [
     label: 'COMMUNITY',
     links: [
       {
-        id: 'whatsapp-community',
+        id: 'telegram-community',
         icon: '💬',
         title: 'Join Community',
         desc: 'Group buy announcements, Q&A, and support',
