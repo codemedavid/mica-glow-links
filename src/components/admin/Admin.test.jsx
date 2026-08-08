@@ -18,6 +18,14 @@ import { Admin } from './Admin'
 
 const SESSION = { user: { email: 'owner@example.com' } }
 
+const PRODUCT_ROW = {
+  code: 'TR5',
+  name: 'Tirzepatide',
+  spec: '5 mg/vial, 10 vials/kits',
+  vial_price: 422.5,
+  stock: 'low',
+}
+
 /**
  * Stand-in for the slices of supabase-js the admin page actually calls.
  *
@@ -25,8 +33,14 @@ const SESSION = { user: { email: 'owner@example.com' } }
  * @param {object|null} [options.session]  Session returned by getSession.
  * @param {object|null} [options.signInError]
  * @param {object|null} [options.upsertError]
+ * @param {Array<object>} [options.products]  Rows in the fake `products` table.
  */
-const fakeClient = ({ session = null, signInError = null, upsertError = null } = {}) => {
+const fakeClient = ({
+  session = null,
+  signInError = null,
+  upsertError = null,
+  products = [PRODUCT_ROW],
+} = {}) => {
   const upsert = vi.fn(() => Promise.resolve({ error: upsertError }))
   let current = session
   const listeners = []
@@ -51,15 +65,29 @@ const fakeClient = ({ session = null, signInError = null, upsertError = null } =
         return Promise.resolve({ error: null })
       }),
     },
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          maybeSingle: () =>
-            Promise.resolve({ data: { value: { amount: 250 } }, error: null }),
+    // Two tables behind one entry point, as supabase-js presents them. The
+    // shipping fee is read through .eq().maybeSingle(); the catalogue is read
+    // by awaiting .select() directly.
+    from: (table) => {
+      if (table === 'products') {
+        return {
+          select: () => Promise.resolve({ data: products.map((row) => ({ ...row })), error: null }),
+          upsert,
+          update: () => ({ eq: () => Promise.resolve({ error: upsertError }) }),
+          delete: () => ({ eq: () => Promise.resolve({ error: upsertError }) }),
+        }
+      }
+
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({ data: { value: { amount: 250 } }, error: null }),
+          }),
         }),
-      }),
-      upsert,
-    }),
+        upsert,
+      }
+    },
   }
 }
 
@@ -193,6 +221,33 @@ describe('Admin — editing the shipping fee', () => {
     await user.click(screen.getByRole('button', { name: /save shipping/i }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/row-level security/i)
+  })
+})
+
+describe('Admin — the Prices tab', () => {
+  it('shows the catalogue the order calculator quotes', async () => {
+    setup({ session: SESSION })
+
+    expect(await screen.findByText('Tirzepatide')).toBeVisible()
+  })
+
+  it('offers the "+ Add" sheet the design calls for', async () => {
+    setup({ session: SESSION })
+
+    expect(await screen.findByRole('button', { name: '+ Add' })).toBeVisible()
+  })
+
+  it('no longer claims the product list is unbuilt', async () => {
+    setup({ session: SESSION })
+
+    await screen.findByText('Tirzepatide')
+    expect(screen.queryByText(/not built yet/i)).not.toBeInTheDocument()
+  })
+
+  it('still shows the shipping fee alongside the catalogue', async () => {
+    setup({ session: SESSION })
+
+    await waitFor(() => expect(screen.getByLabelText(/shipping fee/i)).toHaveValue(250))
   })
 })
 

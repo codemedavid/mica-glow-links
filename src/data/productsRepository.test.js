@@ -83,7 +83,7 @@ describe('normalizeProductRow — column mapping', () => {
   })
 
   it('turns a missing spec into null, never undefined', () => {
-    const { spec, ...withoutSpec } = ROW
+    const { spec: _spec, ...withoutSpec } = ROW
 
     expect(normalizeProductRow(withoutSpec).spec).toBeNull()
   })
@@ -124,7 +124,7 @@ describe('normalizeProductRow — stock states', () => {
   })
 
   it('treats a missing stock state as unknown', () => {
-    const { stock, ...withoutStock } = ROW
+    const { stock: _stock, ...withoutStock } = ROW
 
     expect(normalizeProductRow(withoutStock).stock).toBe('unknown')
   })
@@ -312,7 +312,7 @@ describe('normalizeProductInput — validating what the owner typed', () => {
   })
 
   it('defaults a missing stock state to unknown rather than rejecting the product', () => {
-    const { stock, ...withoutStock } = INPUT
+    const { stock: _stock, ...withoutStock } = INPUT
 
     expect(normalizeProductInput(withoutStock).row.stock).toBe('unknown')
   })

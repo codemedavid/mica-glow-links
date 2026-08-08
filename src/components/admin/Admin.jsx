@@ -6,15 +6,17 @@ import {
   fetchShippingFee,
   updateShippingFee,
 } from '../../data/settingsRepository'
+import { ProductsCard } from './ProductsCard'
 import './admin.css'
 
 /**
  * Admin page, ported from "Admin.dc.html" in the Mama Mica GLW design project.
  *
- * The design's five tabs are Prices, Links, Videos, Notice and Stats. Only
- * Prices is wired so far, and within it only the shipping fee; the rest render
- * an explicit "not built yet" panel rather than a convincing shell that
- * silently does nothing.
+ * The design's five tabs are Prices, Links, Videos, Notice and Stats. Prices is
+ * fully wired — shipping fee and the product catalogue, both against the same
+ * Supabase tables the order calculator reads. The remaining tabs render an
+ * explicit "not built yet" panel rather than a convincing shell that silently
+ * does nothing.
  */
 
 const TOAST_MS = 2200
@@ -64,6 +66,9 @@ function AdminLogin({ onSubmit }) {
   return (
     <div className="admin-login">
       <form className="admin-login-card" onSubmit={handleSubmit}>
+        <span className="admin-logo admin-logo--lg">
+          <img src="/logo.png" alt="Mama Mica GLW logo" width="72" height="72" />
+        </span>
         <span className="admin-login-eyebrow">Mama Mica GLW</span>
         <h1 className="admin-login-title">Admin sign in</h1>
 
@@ -216,8 +221,8 @@ export function Admin({ client = createAdminSupabaseClient(), onBack }) {
     <div className="admin">
       <header className="admin-header">
         <div className="admin-brand">
-          <span className="admin-avatar">
-            <img src="/logo.png" alt="" />
+          <span className="admin-logo">
+            <img src="/logo.png" alt="Mama Mica GLW logo" width="44" height="44" />
           </span>
           <span className="admin-brand-text">
             <span className="admin-brand-name">Mama Mica GLW</span>
@@ -226,46 +231,15 @@ export function Admin({ client = createAdminSupabaseClient(), onBack }) {
         </div>
 
         <button className="admin-account" type="button" onClick={signOut}>
-          <span className="admin-account-initials">{initials}</span>
-          Sign out
+          <span className="admin-account-initials" aria-hidden="true">
+            {initials}
+          </span>
+          <span className="admin-account-text">
+            <span className="admin-account-email">{email}</span>
+            <span className="admin-account-action">Sign out</span>
+          </span>
         </button>
       </header>
-
-      <main className="admin-body">
-        {tab === 'prices' ? (
-          <>
-            <div className="admin-head">
-              <h1 className="admin-title">Price list</h1>
-              <p className="admin-sub">Shipping is editable. The catalogue is next.</p>
-            </div>
-
-            <ShippingFeeCard client={client} onSaved={showToast} />
-
-            <section className="admin-panel admin-panel--pending">
-              <p className="admin-pending">
-                The product list, stock switches and “+ Add” sheet from the design are not
-                built yet. Prices still come from Supabase and the order calculator reads
-                them live.
-              </p>
-            </section>
-          </>
-        ) : (
-          <>
-            <div className="admin-head">
-              <h1 className="admin-title">{TABS.find((item) => item.key === tab)?.label}</h1>
-            </div>
-            <section className="admin-panel admin-panel--pending">
-              <p className="admin-pending">{PENDING_TAB_COPY[tab]}</p>
-            </section>
-          </>
-        )}
-
-        {onBack && (
-          <button className="admin-back" type="button" onClick={onBack}>
-            ← Back to the links page
-          </button>
-        )}
-      </main>
 
       <nav className="admin-tabs" aria-label="Admin sections">
         {TABS.map((item) => (
@@ -283,6 +257,41 @@ export function Admin({ client = createAdminSupabaseClient(), onBack }) {
           </button>
         ))}
       </nav>
+
+      <main className="admin-body">
+        {tab === 'prices' ? (
+          <>
+            <div className="admin-head">
+              <h1 className="admin-title">Price list</h1>
+              <p className="admin-sub">
+                Shipping and every product price. The order calculator reads them live.
+              </p>
+            </div>
+
+            <div className="admin-grid">
+              <ShippingFeeCard client={client} onSaved={showToast} />
+              <ProductsCard client={client} onSaved={showToast} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="admin-head">
+              <h1 className="admin-title">{TABS.find((item) => item.key === tab)?.label}</h1>
+            </div>
+            <div className="admin-grid">
+              <section className="admin-panel admin-panel--pending">
+                <p className="admin-pending">{PENDING_TAB_COPY[tab]}</p>
+              </section>
+            </div>
+          </>
+        )}
+
+        {onBack && (
+          <button className="admin-back" type="button" onClick={onBack}>
+            ← Back to the links page
+          </button>
+        )}
+      </main>
 
       {toast && (
         <p className="admin-toast" role="status">
