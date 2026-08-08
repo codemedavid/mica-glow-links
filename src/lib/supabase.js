@@ -9,8 +9,27 @@ import { createClient } from '@supabase/supabase-js'
 const URL_VAR = 'VITE_SUPABASE_URL'
 const KEY_VAR = 'VITE_SUPABASE_PUBLISHABLE_KEY'
 
-/** One client per url+key pair; supabase-js is stateful and should not be rebuilt per render. */
+/**
+ * One client per url+key+mode triple; supabase-js is stateful and should not be
+ * rebuilt per render. Mode is part of the key because the public and admin
+ * clients share a url and key but differ in auth configuration — keying on
+ * url+key alone would hand the second caller the first caller's client.
+ */
 const clients = new Map()
+
+/** Read-only catalogue access. No session to keep, so none is stored. */
+const PUBLIC_AUTH = { persistSession: false, autoRefreshToken: false }
+
+/**
+ * Authenticated admin access. The session persists so the owner stays signed in
+ * across reloads, under its own storage key so the two clients never share
+ * GoTrue state in the same tab.
+ */
+const ADMIN_AUTH = {
+  persistSession: true,
+  autoRefreshToken: true,
+  storageKey: 'mica-glow-admin-auth',
+}
 
 const clean = (value) => (typeof value === 'string' ? value.trim() : '')
 
@@ -67,10 +86,11 @@ export function isSupabaseConfigured(env = import.meta.env) {
 }
 
 /**
- * @param {Record<string, string|undefined>} [env]
+ * @param {'public'|'admin'} mode
+ * @param {Record<string, string|undefined>} env
  * @returns {import('@supabase/supabase-js').SupabaseClient|null}
  */
-export function createSupabaseClient(env = import.meta.env) {
+function getClient(mode, env) {
   let config
   try {
     config = readSupabaseConfig(env)
@@ -82,16 +102,37 @@ export function createSupabaseClient(env = import.meta.env) {
 
   if (!config) return null
 
-  const cacheKey = `${config.url}::${config.key}`
+  const cacheKey = `${config.url}::${config.key}::${mode}`
   if (!clients.has(cacheKey)) {
     clients.set(
       cacheKey,
       createClient(config.url, config.key, {
-        // The catalogue is public, read-only data. No user sessions to keep.
-        auth: { persistSession: false, autoRefreshToken: false },
+        auth: mode === 'admin' ? ADMIN_AUTH : PUBLIC_AUTH,
       })
     )
   }
 
   return clients.get(cacheKey)
+}
+
+/**
+ * The catalogue is public, read-only data. No user sessions to keep.
+ *
+ * @param {Record<string, string|undefined>} [env]
+ * @returns {import('@supabase/supabase-js').SupabaseClient|null}
+ */
+export function createSupabaseClient(env = import.meta.env) {
+  return getClient('public', env)
+}
+
+/**
+ * Authenticated client for the admin page. Writes are authorised server-side by
+ * row-level security against the signed-in account, so this client carries no
+ * more privilege than whoever is logged in.
+ *
+ * @param {Record<string, string|undefined>} [env]
+ * @returns {import('@supabase/supabase-js').SupabaseClient|null}
+ */
+export function createAdminSupabaseClient(env = import.meta.env) {
+  return getClient('admin', env)
 }
