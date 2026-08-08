@@ -71,12 +71,30 @@ create policy site_settings_owner_write
 
 
 -- ---------------------------------------------------------------------------
--- products: columns the admin Prices tab needs
+-- products: the catalogue the order calculator reads
 -- ---------------------------------------------------------------------------
--- All additive and nullable. The order calculator selects an explicit column
--- list (code, name, spec, vial_price, stock) and ignores extras, so nothing
--- below can break the live site.
+-- Created here so this migration works on an empty project. On a project that
+-- already has the table, CREATE IF NOT EXISTS is a no-op and the ALTERs below
+-- add only what is missing.
+--
+-- Column names are fixed by src/data/productsRepository.js, which selects
+-- exactly "code, name, spec, vial_price, stock". stock is constrained to the
+-- four states the app understands; anything else is dropped on read, so the
+-- constraint turns a silent disappearance into a loud write failure.
 
+create table if not exists public.products (
+  code       text primary key,
+  name       text        not null,
+  spec       text,
+  vial_price numeric     not null check (vial_price > 0),
+  stock      text        not null default 'unknown'
+               check (stock in ('in', 'low', 'out', 'unknown')),
+  category   text,
+  sort_order integer,
+  updated_at timestamptz not null default now()
+);
+
+-- Additive and nullable, for projects where the table predates these columns.
 alter table public.products add column if not exists category   text;
 alter table public.products add column if not exists sort_order integer;
 alter table public.products add column if not exists updated_at timestamptz not null default now();
