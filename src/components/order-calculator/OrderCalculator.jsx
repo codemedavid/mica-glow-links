@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useProducts } from '../../hooks/useProducts'
+import { useShippingFee } from '../../hooks/useShippingFee'
 import './order-calculator.css'
 
-const SHIPPING_FEE = 250
 const MAX_RESULTS = 60
 
 const formatPhp = (value) =>
@@ -18,8 +18,9 @@ const formatPhp = (value) =>
  *   Injected by tests. Left undefined in production so useProducts builds its
  *   own client from the environment.
  */
-export function OrderCalculator({ onBack, supabaseClient }) {
+export function OrderCalculator({ onBack, supabaseClient, shippingFee }) {
   const { products } = useProducts({ client: supabaseClient })
+  const { amount: configuredShippingFee } = useShippingFee({ client: supabaseClient })
   const [query, setQuery] = useState('')
   const [isFocused, setIsFocused] = useState(false)
   // Cart lines keyed by product code: { code, qty }
@@ -89,7 +90,9 @@ export function OrderCalculator({ onBack, supabaseClient }) {
 
   const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0)
   const totalVials = items.reduce((sum, item) => sum + item.qty, 0)
-  const shipping = cart.length ? SHIPPING_FEE : 0
+  // ?? not ||, so an owner-set free-shipping promo of 0 is not read as "unset".
+  const fee = shippingFee ?? configuredShippingFee
+  const shipping = cart.length ? fee : 0
   const total = subtotal + shipping
 
   return (

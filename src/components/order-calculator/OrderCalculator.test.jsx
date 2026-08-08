@@ -112,8 +112,10 @@ describe('OrderCalculator — August 4 catalogue', () => {
     const shippingRow = screen.getByText('Shipping fee').parentElement
     expect(within(shippingRow).getByText('PHP 0.00')).toBeVisible()
 
-    // The grand total is the bare subtotal when shipping is free.
-    expect(screen.getByText('PHP 2,606.50')).toBeVisible()
+    // The grand total is the bare subtotal when shipping is free. Scoped to the
+    // total row because the line total renders the same figure.
+    const totalRow = screen.getByRole('button', { name: /estimated total/i })
+    expect(within(totalRow).getByText('PHP 2,606.50')).toBeVisible()
   })
 
   it('still charges no shipping on an empty cart, whatever the configured fee', () => {
