@@ -147,6 +147,20 @@ describe('ProductsCard — finding a product', () => {
     expect(screen.queryByText('Tirzepatide')).not.toBeInTheDocument()
   })
 
+  it('caps a long catalogue and says it has done so, rather than truncating silently', async () => {
+    const many = Array.from({ length: 45 }, (_index, position) => ({
+      code: `P${String(position).padStart(3, '0')}`,
+      name: `Product ${String(position).padStart(3, '0')}`,
+      spec: null,
+      vial_price: 100 + position,
+      stock: 'in',
+    }))
+    setup(fakeTable(many))
+
+    expect(await screen.findByText(/showing the first 40/i)).toBeVisible()
+    expect(screen.getByText(/45 products/i)).toBeVisible()
+  })
+
   it('says nothing matched instead of rendering a blank list', async () => {
     const { user } = setup()
 

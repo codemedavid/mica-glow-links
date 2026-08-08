@@ -504,6 +504,46 @@ describe('deleteProduct — retiring a product', () => {
   })
 })
 
+describe('admin writes when the network itself fails', () => {
+  /** Rejects rather than resolving with an error, as a dropped connection does. */
+  const clientThatRejects = () => ({
+    from: () => ({
+      select: () => Promise.reject(new Error('fetch failed')),
+      upsert: () => Promise.reject(new Error('fetch failed')),
+      update: () => ({ eq: () => Promise.reject(new Error('fetch failed')) }),
+      delete: () => ({ eq: () => Promise.reject(new Error('fetch failed')) }),
+    }),
+  })
+
+  it('reports a failed read rather than throwing at the admin page', async () => {
+    const result = await listProducts({ client: clientThatRejects() })
+
+    expect(result.products).toEqual([])
+    expect(result.error).toMatch(/fetch failed/)
+  })
+
+  it('reports a failed save rather than throwing', async () => {
+    const result = await saveProduct(
+      { code: 'TR5', name: 'Tirzepatide', vial: 500 },
+      { client: clientThatRejects() }
+    )
+
+    expect(result).toMatchObject({ ok: false, error: expect.stringMatching(/fetch failed/) })
+  })
+
+  it('reports a failed stock change rather than throwing', async () => {
+    const result = await setProductStock('TR5', 'out', { client: clientThatRejects() })
+
+    expect(result).toMatchObject({ ok: false, error: expect.stringMatching(/fetch failed/) })
+  })
+
+  it('reports a failed delete rather than throwing', async () => {
+    const result = await deleteProduct('TR5', { client: clientThatRejects() })
+
+    expect(result).toMatchObject({ ok: false, error: expect.stringMatching(/fetch failed/) })
+  })
+})
+
 describe('the admin page and the order calculator share one table', () => {
   it('quotes the price the admin page just saved', async () => {
     const client = fakeTable([{ ...ROW }])
