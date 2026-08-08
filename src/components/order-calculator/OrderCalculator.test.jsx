@@ -12,9 +12,9 @@ import { products } from '../../data/products'
 
 const SHIPPING_FEE = 250
 
-const setup = () => ({
+const setup = (props = {}) => ({
   user: userEvent.setup(),
-  ...render(<OrderCalculator onBack={() => {}} />),
+  ...render(<OrderCalculator onBack={() => {}} {...props} />),
 })
 
 const search = async (user, term) => {
@@ -89,6 +89,37 @@ describe('OrderCalculator — August 4 catalogue', () => {
 
     const shippingRow = screen.getByText('Shipping fee').parentElement
     expect(within(shippingRow).getByText(`PHP ${SHIPPING_FEE}.00`)).toBeVisible()
+  })
+
+  it('charges the shipping fee the owner has configured, not a hardcoded one', async () => {
+    const { user } = setup({ shippingFee: 180 })
+
+    await search(user, 'RETALIDE')
+    await user.click(screen.getByRole('button', { name: /retatrutide 30mg/i }))
+    await user.click(screen.getByRole('button', { name: /estimated total/i }))
+
+    const shippingRow = screen.getByText('Shipping fee').parentElement
+    expect(within(shippingRow).getByText('PHP 180.00')).toBeVisible()
+  })
+
+  it('shows free shipping as PHP 0.00 during a promo, not as the default fee', async () => {
+    const { user } = setup({ shippingFee: 0 })
+
+    await search(user, 'RETALIDE')
+    await user.click(screen.getByRole('button', { name: /retatrutide 30mg/i }))
+    await user.click(screen.getByRole('button', { name: /estimated total/i }))
+
+    const shippingRow = screen.getByText('Shipping fee').parentElement
+    expect(within(shippingRow).getByText('PHP 0.00')).toBeVisible()
+
+    // The grand total is the bare subtotal when shipping is free.
+    expect(screen.getByText('PHP 2,606.50')).toBeVisible()
+  })
+
+  it('still charges no shipping on an empty cart, whatever the configured fee', () => {
+    setup({ shippingFee: 180 })
+
+    expect(screen.queryByText('PHP 180.00')).not.toBeInTheDocument()
   })
 
   it('no longer offers products delisted in August', async () => {
