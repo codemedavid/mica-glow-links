@@ -32,21 +32,26 @@ afterEach(() => {
 })
 
 describe('useProducts — first paint', () => {
-  it('serves the bundled catalogue synchronously, before any request resolves', () => {
+  it('serves the bundled catalogue synchronously, before any request resolves', async () => {
     const client = clientReturning({ data: [LIVE_ROW], error: null })
 
     const { result } = renderHook(() => useProducts({ client, fallback: FALLBACK }))
 
     expect(result.current.products).toEqual(FALLBACK)
     expect(result.current.source).toBe('fallback')
+
+    // Let the in-flight revalidation settle so it lands inside act().
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
   })
 
-  it('reports that it is revalidating on first paint', () => {
+  it('reports that it is revalidating on first paint', async () => {
     const client = clientReturning({ data: [LIVE_ROW], error: null })
 
     const { result } = renderHook(() => useProducts({ client, fallback: FALLBACK }))
 
     expect(result.current.isLoading).toBe(true)
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
   })
 })
 

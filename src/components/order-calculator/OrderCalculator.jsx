@@ -1,14 +1,9 @@
 import { useMemo, useState } from 'react'
-import { products } from '../../data/products'
+import { useProducts } from '../../hooks/useProducts'
 import './order-calculator.css'
 
-const SHIPPING_FEE = 500
+const SHIPPING_FEE = 250
 const MAX_RESULTS = 60
-
-// Products sorted once, by name then code — matches the design's initial sort.
-const sortedProducts = [...products].sort(
-  (a, b) => a.name.localeCompare(b.name) || a.code.localeCompare(b.code)
-)
 
 const formatPhp = (value) =>
   `PHP ${value.toLocaleString('en-PH', {
@@ -17,14 +12,28 @@ const formatPhp = (value) =>
   })}`
 
 /**
- * @param {{ onBack: () => void }} props
+ * @param {object} props
+ * @param {() => void} props.onBack
+ * @param {import('@supabase/supabase-js').SupabaseClient|null} [props.supabaseClient]
+ *   Injected by tests. Left undefined in production so useProducts builds its
+ *   own client from the environment.
  */
-export function OrderCalculator({ onBack }) {
+export function OrderCalculator({ onBack, supabaseClient }) {
+  const { products } = useProducts({ client: supabaseClient })
   const [query, setQuery] = useState('')
   const [isFocused, setIsFocused] = useState(false)
   // Cart lines keyed by product code: { code, qty }
   const [cart, setCart] = useState([])
   const [isSummaryOpen, setIsSummaryOpen] = useState(false)
+
+  // By name then code — matches the design's initial sort.
+  const sortedProducts = useMemo(
+    () =>
+      [...products].sort(
+        (a, b) => a.name.localeCompare(b.name) || a.code.localeCompare(b.code)
+      ),
+    [products]
+  )
 
   const addProduct = (code) => {
     setCart((prev) => {
@@ -60,7 +69,7 @@ export function OrderCalculator({ onBack }) {
           (p.spec || '').toLowerCase().includes(trimmedQuery)
       )
       .slice(0, MAX_RESULTS)
-  }, [trimmedQuery])
+  }, [trimmedQuery, sortedProducts])
 
   const showResults = isFocused || trimmedQuery.length > 0
   const noMatches = showResults && results.length === 0

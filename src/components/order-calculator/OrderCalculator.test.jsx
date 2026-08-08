@@ -10,7 +10,7 @@ import { products } from '../../data/products'
  * before I message the shop.
  */
 
-const SHIPPING_FEE = 500
+const SHIPPING_FEE = 250
 
 const setup = () => ({
   user: userEvent.setup(),
@@ -97,5 +97,65 @@ describe('OrderCalculator — August 4 catalogue', () => {
     await search(user, 'IGF-DES')
 
     expect(screen.getByText(/no products match/i)).toBeVisible()
+  })
+})
+
+/**
+ * Journey: As the shop owner, I want to change a price in Supabase and have
+ * the calculator quote the new figure without a redeploy — but never at the
+ * cost of the calculator working at all.
+ */
+describe('OrderCalculator — live prices from Supabase', () => {
+  const clientReturning = (result) => ({
+    from: () => ({ select: () => Promise.resolve(result) }),
+  })
+
+  const LIVE_ROW = {
+    code: 'TR5',
+    name: 'Tirzepatide',
+    spec: '5 mg/vial, 10 vials/kits',
+    vial_price: 111,
+    stock: 'in',
+  }
+
+  it('quotes the Supabase price rather than the bundled one', async () => {
+    const user = userEvent.setup()
+    render(
+      <OrderCalculator
+        onBack={() => {}}
+        supabaseClient={clientReturning({ data: [LIVE_ROW], error: null })}
+      />
+    )
+
+    await screen.findByText('1 products')
+    await search(user, 'TR5')
+    await user.click(screen.getByRole('button', { name: /tirzepatide/i }))
+
+    expect(screen.getByText(`PHP ${(111 + SHIPPING_FEE).toFixed(2)}`)).toBeVisible()
+  })
+
+  it('falls back to the bundled catalogue when Supabase errors', async () => {
+    render(
+      <OrderCalculator
+        onBack={() => {}}
+        supabaseClient={clientReturning({ data: null, error: { message: 'permission denied' } })}
+      />
+    )
+
+    expect(await screen.findByText(`${products.length} products`)).toBeVisible()
+  })
+
+  it('renders the bundled catalogue immediately, then upgrades once Supabase answers', async () => {
+    render(
+      <OrderCalculator
+        onBack={() => {}}
+        supabaseClient={clientReturning({ data: [LIVE_ROW], error: null })}
+      />
+    )
+
+    expect(screen.getByText(`${products.length} products`)).toBeVisible()
+
+    // Settling here also proves the upgrade happens, and keeps the update inside act().
+    expect(await screen.findByText('1 products')).toBeVisible()
   })
 })
