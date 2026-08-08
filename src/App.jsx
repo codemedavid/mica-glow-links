@@ -3,11 +3,23 @@ import { Analytics } from '@vercel/analytics/react'
 import './App.css'
 import './components/home/home.css'
 import { OrderCalculator } from './components/order-calculator/OrderCalculator'
+import { PeptideCalculator } from './components/peptide-calculator/PeptideCalculator'
+import { Tutorials } from './components/tutorials/Tutorials'
+import { Admin } from './components/admin/Admin'
 
 const COMMUNITY_URL = 'https://t.me/+YqOUF5FOwK9jNDE9'
 const MASTERCLASS_URL =
   'https://docs.google.com/document/d/13ZxEBVB8vavnWMsOn0btVwSt4k2tV45v/edit'
 const CONSULTATION_URL = 'https://nowserving.seriousmd.com/doctor/andrei-francis-flandes'
+
+// Full-page views rendered in place of the links list, keyed by URL hash.
+const VIEW_BY_HASH = {
+  '#order': 'order',
+  '#reviews': 'reviews',
+  '#peptide': 'peptide',
+  '#tutorials': 'tutorials',
+  '#admin': 'admin',
+}
 
 // Homepage links grouped into labeled sections (Links.dc.html design).
 // kind: 'external' opens a new tab, 'route' navigates a hash view,
@@ -77,6 +89,22 @@ const linkGroups = [
     id: 'learn',
     label: 'LEARN & VERIFY',
     links: [
+      {
+        id: 'peptide-calculator',
+        icon: '💉',
+        title: 'Peptide Calculator',
+        desc: 'Reconstitution and dosing — see your exact draw',
+        href: '#peptide',
+        kind: 'route',
+      },
+      {
+        id: 'video-tutorials',
+        icon: '🎥',
+        title: 'Video Tutorials',
+        desc: 'Watch & learn — reconstitution, pens, and dosing',
+        href: '#tutorials',
+        kind: 'route',
+      },
       {
         id: 'e-guides',
         icon: '📘',
@@ -152,7 +180,7 @@ function App() {
   useEffect(() => {
     const syncView = () => {
       const hash = window.location.hash
-      const nextView = hash === '#order' ? 'order' : hash === '#reviews' ? 'reviews' : 'home'
+      const nextView = VIEW_BY_HASH[hash] ?? 'home'
       setView(nextView)
     }
     syncView()
@@ -199,6 +227,18 @@ function App() {
   const toggleAdmin = (e) => {
     handleRipple(e)
     setIsAdminOpen(!isAdminOpen)
+  }
+
+  // The admin shell is a fixed, full-viewport app with its own background and
+  // bottom bar, so it replaces the links page rather than rendering inside it.
+  if (view === 'admin') {
+    return (
+      <Admin
+        onBack={() => {
+          window.location.hash = ''
+        }}
+      />
+    )
   }
 
   return (
@@ -474,6 +514,14 @@ function App() {
 
         {view === 'order' && (
           <OrderCalculator onBack={() => { window.location.hash = '' }} />
+        )}
+
+        {view === 'peptide' && (
+          <PeptideCalculator onBack={() => { window.location.hash = '' }} />
+        )}
+
+        {view === 'tutorials' && (
+          <Tutorials onBack={() => { window.location.hash = '' }} />
         )}
 
         {view === 'reviews' && (
