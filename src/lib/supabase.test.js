@@ -3,6 +3,7 @@ import {
   isSupabaseConfigured,
   readSupabaseConfig,
   createSupabaseClient,
+  createAdminSupabaseClient,
 } from './supabase'
 
 /**
@@ -128,5 +129,44 @@ describe('createSupabaseClient', () => {
 
   it('reuses one client per config instead of building a new one per call', () => {
     expect(createSupabaseClient(VALID)).toBe(createSupabaseClient(VALID))
+  })
+})
+
+/**
+ * Journey: As the shop owner, I want to stay signed in to the admin page
+ * across reloads, so that editing prices does not mean logging in every time.
+ *
+ * The public client is deliberately session-less: the catalogue is public
+ * read-only data. The admin client is the opposite — it must persist a session
+ * and refresh its token. Both point at the same url and key, so a cache keyed
+ * only on url+key hands back whichever was built first and silently discards
+ * the other's auth configuration.
+ */
+describe('createAdminSupabaseClient', () => {
+  it('returns null when Supabase is not configured', () => {
+    expect(createAdminSupabaseClient({})).toBeNull()
+  })
+
+  it('returns null rather than throwing when the config is broken', () => {
+    expect(createAdminSupabaseClient({ VITE_SUPABASE_URL: 'not a url' })).toBeNull()
+  })
+
+  it('is a distinct client from the public one, so neither overwrites the other', () => {
+    expect(createAdminSupabaseClient(VALID)).not.toBe(createSupabaseClient(VALID))
+  })
+
+  it('reuses one admin client per config instead of building a new one per call', () => {
+    expect(createAdminSupabaseClient(VALID)).toBe(createAdminSupabaseClient(VALID))
+  })
+
+  it('offers password sign-in, which the read-only client has no use for', () => {
+    const client = createAdminSupabaseClient(VALID)
+
+    expect(typeof client.auth.signInWithPassword).toBe('function')
+    expect(typeof client.auth.signOut).toBe('function')
+  })
+
+  it('can still query tables, so one client covers both reads and writes', () => {
+    expect(typeof createAdminSupabaseClient(VALID).from).toBe('function')
   })
 })
