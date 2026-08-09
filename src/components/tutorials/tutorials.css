@@ -1,0 +1,477 @@
+/* Tutorials — ported from the "Peptide Tutorials" design.
+   Same deep violet glass as the peptide calculator: a featured walkthrough on
+   top, category chips, then a card grid that ends on the calculator hand-off. */
+
+.tut {
+  --tut-accent: #a78bfa;
+  --tut-lilac: #c4b5fd;
+  --tut-ink: #ede9fe;
+  --tut-ink-soft: rgba(237, 233, 254, 0.66);
+  --tut-ink-faint: rgba(237, 233, 254, 0.45);
+  --tut-panel: rgba(255, 255, 255, 0.05);
+  --tut-border: rgba(167, 139, 250, 0.22);
+  --tut-border-strong: rgba(167, 139, 250, 0.5);
+  --tut-selected-ink: #3b1d78;
+  --tut-mint: #6ee7b7;
+
+  --tut-radius-card: 20px;
+  --tut-radius-feature: 22px;
+
+  --tut-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --tut-duration: 180ms;
+
+  width: 100%;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  color: #fff;
+  /* The links page centres its text; the library reads as a document. */
+  text-align: left;
+  background:
+    radial-gradient(1100px 700px at 18% 6%, #4a2a7a 0%, rgba(74, 42, 122, 0) 60%),
+    radial-gradient(900px 600px at 88% 62%, #3d3a8e 0%, rgba(61, 58, 142, 0) 62%);
+}
+
+.tut-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 5vw, 30px);
+}
+
+/* Top bar — mirrors the calculators' back control. */
+.tut-topbar {
+  display: flex;
+}
+
+.tut-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  background: rgba(46, 29, 84, 0.55);
+  color: #e4dcff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--tut-duration) var(--tut-ease),
+    transform var(--tut-duration) var(--tut-ease);
+}
+
+.tut-back:hover {
+  background: rgba(64, 41, 116, 0.75);
+  transform: translateY(-1px);
+}
+
+.tut-back:focus-visible {
+  outline: 2px solid var(--tut-lilac);
+  outline-offset: 3px;
+}
+
+/* Header */
+.tut-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.tut-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tut-accent);
+}
+
+.tut-title {
+  margin: 0;
+  font-size: clamp(28px, 8vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.tut-sub {
+  margin: 4px 0 0;
+  max-width: 460px;
+  font-size: clamp(14px, 3.7vw, 15.5px);
+  line-height: 1.6;
+  color: var(--tut-ink-soft);
+  text-wrap: pretty;
+}
+
+/* Featured walkthrough */
+.tut-featured {
+  position: relative;
+  border-radius: var(--tut-radius-feature);
+  overflow: hidden;
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  box-shadow: 0 20px 60px rgba(12, 6, 26, 0.5);
+}
+
+.tut-featured-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(150deg, rgba(139, 92, 246, 0.45), rgba(50, 32, 105, 0.6));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.tut-featured-meta {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(237, 233, 254, 0.75);
+}
+
+/* Embedded YouTube player, filling its 16:9 media box. */
+.tut-player {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.tut-featured-body {
+  padding: clamp(18px, 5vw, 24px);
+  background: var(--tut-panel);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tut-featured-title {
+  margin: 0;
+  font-size: clamp(19px, 5vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.tut-featured-desc {
+  margin: 0;
+  font-size: clamp(13.5px, 3.6vw, 15px);
+  line-height: 1.6;
+  color: var(--tut-ink-soft);
+  text-wrap: pretty;
+}
+
+/* Play affordance, shared by the featured card and the grid. */
+.tut-play {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.tut-play--large {
+  width: clamp(58px, 15vw, 74px);
+  height: clamp(58px, 15vw, 74px);
+  font-size: clamp(18px, 4.5vw, 22px);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Category filter */
+.tut-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.tut-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.tut-chip {
+  flex: none;
+  white-space: nowrap;
+  min-height: 44px;
+  padding: 0 17px;
+  border-radius: 999px;
+  border: 1px solid rgba(196, 181, 253, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(237, 233, 254, 0.8);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--tut-duration) var(--tut-ease),
+    color var(--tut-duration) var(--tut-ease),
+    border-color var(--tut-duration) var(--tut-ease);
+}
+
+.tut-chip:hover {
+  border-color: var(--tut-border-strong);
+  color: var(--tut-ink);
+}
+
+.tut-chip:focus-visible {
+  outline: 2px solid var(--tut-lilac);
+  outline-offset: 3px;
+}
+
+.tut-chip--selected {
+  background: #fff;
+  border-color: #fff;
+  color: var(--tut-selected-ink);
+}
+
+/* Card grid */
+.tut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: clamp(14px, 3.5vw, 20px);
+}
+
+.tut-card {
+  background: var(--tut-panel);
+  border: 1px solid rgba(196, 181, 253, 0.2);
+  border-radius: var(--tut-radius-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition:
+    border-color var(--tut-duration) var(--tut-ease),
+    transform var(--tut-duration) var(--tut-ease);
+}
+
+.tut-card:hover {
+  border-color: rgba(196, 181, 253, 0.55);
+  transform: translateY(-3px);
+}
+
+.tut-card-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(150deg, rgba(139, 92, 246, 0.38), rgba(60, 40, 120, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tut-card-category {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(12, 6, 26, 0.6);
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tut-ink);
+}
+
+.tut-card-length {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  background: rgba(12, 6, 26, 0.72);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tut-ink);
+}
+
+.tut-card-body {
+  padding: 16px 17px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+}
+
+.tut-card-title {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+}
+
+.tut-card-desc {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(237, 233, 254, 0.6);
+  text-wrap: pretty;
+}
+
+/* No video is published yet — say so rather than offer a dead link. */
+.tut-card-status {
+  margin: auto 0 0;
+  padding-top: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tut-ink-faint);
+}
+
+/* Once published, the badges move off the player (they would block its
+   controls) and read as a caption instead. */
+.tut-card-meta {
+  margin: auto 0 0;
+  padding-top: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tut-ink-faint);
+}
+
+.tut-empty {
+  margin: 0;
+  padding: 28px 20px;
+  border-radius: var(--tut-radius-card);
+  border: 1px dashed var(--tut-border);
+  text-align: center;
+  font-size: 14px;
+  color: var(--tut-ink-soft);
+}
+
+/* Hand-off to the calculator */
+.tut-next {
+  margin-top: clamp(14px, 4vw, 26px);
+  border-radius: var(--tut-radius-feature);
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  background: linear-gradient(160deg, rgba(139, 92, 246, 0.34), rgba(60, 40, 120, 0.25));
+  padding: clamp(24px, 6vw, 34px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.tut-next-tag {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tut-ink);
+}
+
+.tut-next-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tut-mint);
+  box-shadow: 0 0 10px var(--tut-mint);
+  animation: tut-glow-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes tut-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.tut-next-title {
+  margin: 0;
+  font-size: clamp(20px, 5.5vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.tut-next-desc {
+  margin: 0;
+  max-width: 400px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(237, 233, 254, 0.7);
+  text-wrap: pretty;
+}
+
+.tut-cta {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 28px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: #fff;
+  color: #4c1d95;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background var(--tut-duration) var(--tut-ease),
+    transform var(--tut-duration) var(--tut-ease);
+}
+
+.tut-cta:hover {
+  background: var(--tut-ink);
+  transform: translateY(-1px);
+}
+
+.tut-cta:focus-visible {
+  outline: 2px solid var(--tut-lilac);
+  outline-offset: 3px;
+}
+
+.tut-disclaimer {
+  margin: 8px auto 0;
+  max-width: 520px;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: rgba(237, 233, 254, 0.42);
+  text-wrap: pretty;
+}
+
+.tut-copyright {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(237, 233, 254, 0.32);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tut-back,
+  .tut-chip,
+  .tut-card,
+  .tut-cta {
+    transition: none;
+  }
+
+  .tut-back:hover,
+  .tut-card:hover,
+  .tut-cta:hover {
+    transform: none;
+  }
+
+  .tut-next-dot {
+    animation: none;
+  }
+}

@@ -38,3 +38,76 @@ describe('Book a Consultation link', () => {
     expect(link).toHaveTextContent(/dr\.?\s*andrei francis flandes/i)
   })
 })
+
+/**
+ * Journey: As a community member who has just received a vial, I want to reach
+ * the peptide calculator from the links page, so that I can work out my dose
+ * before mixing anything.
+ */
+describe('Peptide Calculator link', () => {
+  beforeEach(() => {
+    window.location.hash = ''
+  })
+
+  it('is offered on the links page', () => {
+    render(<App />)
+
+    expect(screen.getByRole('link', { name: /peptide calculator/i })).toBeVisible()
+  })
+
+  it('opens the calculator when the link is followed', () => {
+    window.location.hash = '#peptide'
+    render(<App />)
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Peptide Calculator' })).toBeVisible()
+  })
+
+  it('keeps the links page as the default view', () => {
+    render(<App />)
+
+    expect(
+      screen.queryByRole('heading', { level: 1, name: 'Peptide Calculator' })
+    ).not.toBeInTheDocument()
+  })
+})
+
+/**
+ * Journey: As a community member who is unsure how to mix or inject, I want to
+ * reach the video tutorials from the links page, so that I can watch the
+ * technique before I try it myself.
+ */
+describe('Video Tutorials link', () => {
+  beforeEach(() => {
+    window.location.hash = ''
+  })
+
+  it('is offered on the links page', () => {
+    render(<App />)
+
+    expect(screen.getByRole('link', { name: /video tutorials/i })).toBeVisible()
+  })
+
+  it('points at the tutorials view', () => {
+    render(<App />)
+
+    expect(screen.getByRole('link', { name: /video tutorials/i })).toHaveAttribute(
+      'href',
+      '#tutorials'
+    )
+  })
+
+  it('opens the tutorials page when the link is followed', () => {
+    window.location.hash = '#tutorials'
+    render(<App />)
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Peptide Tutorials' })).toBeVisible()
+  })
+
+  it('keeps the links page as the default view', () => {
+    render(<App />)
+
+    expect(
+      screen.queryByRole('heading', { level: 1, name: 'Peptide Tutorials' })
+    ).not.toBeInTheDocument()
+  })
+})
