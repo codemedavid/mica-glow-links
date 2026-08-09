@@ -16,6 +16,8 @@ const TABLE = 'site_settings'
 const COLUMNS = 'key, value'
 
 export const SHIPPING_FEE_KEY = 'shipping_fee'
+export const LINK_VISIBILITY_KEY = 'link_visibility'
+export const LINK_OVERRIDES_KEY = 'link_overrides'
 
 /**
  * The fee the calculator charges when Supabase has never been configured, is
@@ -23,6 +25,9 @@ export const SHIPPING_FEE_KEY = 'shipping_fee'
  * before it became editable.
  */
 export const DEFAULT_SHIPPING_FEE = 250
+
+export const DEFAULT_LINK_VISIBILITY = Object.freeze({})
+export const DEFAULT_LINK_OVERRIDES = Object.freeze({})
 
 /**
  * A fee of 0 is a deliberate free-shipping promotion and must survive; only a
@@ -48,6 +53,56 @@ export function normalizeShippingFee(row) {
   if (!Number.isFinite(amount) || amount < 0) return null
 
   return amount
+}
+
+/**
+ * @param {Record<string, unknown>|null|undefined} row
+ * @returns {Record<string, boolean>|null} null when the row is unusable.
+ */
+export function normalizeLinkVisibility(row) {
+  if (!row || typeof row !== 'object') return null
+
+  const value = row.value
+  if (!value || typeof value !== 'object') return null
+
+  const visibility = value.visibility
+  if (!visibility || typeof visibility !== 'object' || Array.isArray(visibility)) return null
+
+  return Object.fromEntries(
+    Object.entries(visibility).filter(([, enabled]) => typeof enabled === 'boolean')
+  )
+}
+
+/**
+ * @param {Record<string, unknown>|null|undefined} row
+ * @returns {Record<string, {title?: string, desc?: string, href?: string}>|null}
+ */
+export function normalizeLinkOverrides(row) {
+  if (!row || typeof row !== 'object') return null
+
+  const value = row.value
+  if (!value || typeof value !== 'object') return null
+
+  const overrides = value.overrides
+  if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) return null
+
+  const cleanOverrides = {}
+
+  for (const [id, override] of Object.entries(overrides)) {
+    if (!id.trim() || !override || typeof override !== 'object' || Array.isArray(override)) {
+      continue
+    }
+
+    const cleanOverride = {}
+
+    for (const field of ['title', 'desc', 'href']) {
+      if (typeof override[field] === 'string') cleanOverride[field] = override[field]
+    }
+
+    if (Object.keys(cleanOverride).length > 0) cleanOverrides[id] = cleanOverride
+  }
+
+  return cleanOverrides
 }
 
 /**
@@ -82,6 +137,70 @@ export async function fetchShippingFee({ client, fallback = DEFAULT_SHIPPING_FEE
 }
 
 /**
+ * @param {object} [options]
+ * @param {import('@supabase/supabase-js').SupabaseClient|null} [options.client]
+ * @param {Record<string, boolean>} [options.fallback]
+ * @returns {Promise<{visibility: Record<string, boolean>, source: 'supabase'|'fallback', error: string|null}>}
+ */
+export async function fetchLinkVisibility({
+  client,
+  fallback = DEFAULT_LINK_VISIBILITY,
+} = {}) {
+  const degrade = (error = null) => ({ visibility: { ...fallback }, source: 'fallback', error })
+
+  if (!client) return degrade()
+
+  try {
+    const { data, error } = await client
+      .from(TABLE)
+      .select(COLUMNS)
+      .eq('key', LINK_VISIBILITY_KEY)
+      .maybeSingle()
+
+    if (error) return degrade(error.message ?? String(error))
+
+    const visibility = normalizeLinkVisibility(data)
+    if (visibility === null) return degrade()
+
+    return { visibility, source: 'supabase', error: null }
+  } catch (cause) {
+    return degrade(cause?.message ?? String(cause))
+  }
+}
+
+/**
+ * @param {object} [options]
+ * @param {import('@supabase/supabase-js').SupabaseClient|null} [options.client]
+ * @param {Record<string, {title?: string, desc?: string, href?: string}>} [options.fallback]
+ * @returns {Promise<{overrides: Record<string, {title?: string, desc?: string, href?: string}>, source: 'supabase'|'fallback', error: string|null}>}
+ */
+export async function fetchLinkOverrides({
+  client,
+  fallback = DEFAULT_LINK_OVERRIDES,
+} = {}) {
+  const degrade = (error = null) => ({ overrides: { ...fallback }, source: 'fallback', error })
+
+  if (!client) return degrade()
+
+  try {
+    const { data, error } = await client
+      .from(TABLE)
+      .select(COLUMNS)
+      .eq('key', LINK_OVERRIDES_KEY)
+      .maybeSingle()
+
+    if (error) return degrade(error.message ?? String(error))
+
+    const overrides = normalizeLinkOverrides(data)
+    if (overrides === null) return degrade()
+
+    return { overrides, source: 'supabase', error: null }
+  } catch (cause) {
+    return degrade(cause?.message ?? String(cause))
+  }
+}
+
+/**
  * Writes the owner's new fee. Authorisation is enforced by row-level security
  * against the signed-in account, so a rejected write surfaces as an error here
  * rather than being prevented client-side.
@@ -109,6 +228,76 @@ export async function updateShippingFee(amount, { client } = {}) {
     const { error } = await client
       .from(TABLE)
       .upsert({ key: SHIPPING_FEE_KEY, value: { amount: fee } }, { onConflict: 'key' })
+
+    if (error) return fail(error.message ?? String(error))
+
+    return { ok: true, error: null }
+  } catch (cause) {
+    return fail(cause?.message ?? String(cause))
+  }
+}
+
+/**
+ * @param {Record<string, boolean>} visibility
+ * @param {object} [options]
+ * @param {import('@supabase/supabase-js').SupabaseClient|null} [options.client]
+ * @returns {Promise<{ok: boolean, error: string|null}>}
+ */
+export async function updateLinkVisibility(visibility, { client } = {}) {
+  const fail = (error) => ({ ok: false, error })
+
+  if (!client) return fail('Sign in before changing link visibility.')
+
+  if (!visibility || typeof visibility !== 'object' || Array.isArray(visibility)) {
+    return fail('Link visibility must be a list of on/off values.')
+  }
+
+  const cleanVisibility = Object.fromEntries(
+    Object.entries(visibility).filter(
+      ([id, enabled]) => typeof id === 'string' && id.trim() && typeof enabled === 'boolean'
+    )
+  )
+
+  try {
+    const { error } = await client
+      .from(TABLE)
+      .upsert(
+        { key: LINK_VISIBILITY_KEY, value: { visibility: cleanVisibility } },
+        { onConflict: 'key' }
+      )
+
+    if (error) return fail(error.message ?? String(error))
+
+    return { ok: true, error: null }
+  } catch (cause) {
+    return fail(cause?.message ?? String(cause))
+  }
+}
+
+/**
+ * @param {Record<string, {title?: string, desc?: string, href?: string}>} overrides
+ * @param {object} [options]
+ * @param {import('@supabase/supabase-js').SupabaseClient|null} [options.client]
+ * @returns {Promise<{ok: boolean, error: string|null}>}
+ */
+export async function updateLinkOverrides(overrides, { client } = {}) {
+  const fail = (error) => ({ ok: false, error })
+
+  if (!client) return fail('Sign in before changing link details.')
+
+  if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) {
+    return fail('Link details must be a list of editable fields.')
+  }
+
+  const cleanOverrides = normalizeLinkOverrides({ value: { overrides } }) ?? {}
+
+  try {
+    const { error } = await client
+      .from(TABLE)
+      .upsert(
+        { key: LINK_OVERRIDES_KEY, value: { overrides: cleanOverrides } },
+        { onConflict: 'key' }
+      )
 
     if (error) return fail(error.message ?? String(error))
 

@@ -67,9 +67,10 @@ body {
   min-height: 100dvh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
+  align-items: flex-start;
+  padding: clamp(16px, 4vw, 32px);
   position: relative;
+  overflow-x: clip;
 }
 
 /* ===== Background Glows ===== */
@@ -228,7 +229,7 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: var(--max-width);
+  max-width: min(100%, 980px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -975,6 +976,8 @@ body {
   padding-top: 20px;
   border-top: 1px solid rgba(139, 92, 246, 0.1);
   width: 100%;
+  max-width: 560px;
+  align-self: center;
 }
 
 .footer p {
@@ -1433,7 +1436,7 @@ body {
   }
 
   .container {
-    padding: 16px;
+    padding: 14px;
   }
 
   .avatar {
@@ -1464,7 +1467,7 @@ body {
 /* ===== Very Small Screens ===== */
 @media (max-width: 360px) {
   .container {
-    padding: 12px;
+    padding: 10px;
   }
 
   .title {

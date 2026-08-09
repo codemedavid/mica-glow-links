@@ -4,8 +4,13 @@ import { createAdminSupabaseClient } from '../../lib/supabase'
 import {
   DEFAULT_SHIPPING_FEE,
   fetchShippingFee,
+  fetchLinkOverrides,
+  fetchLinkVisibility,
   updateShippingFee,
+  updateLinkOverrides,
+  updateLinkVisibility,
 } from '../../data/settingsRepository'
+import { applyLinkOverride, homeControls } from '../../data/homeLinks'
 import { ProductsCard } from './ProductsCard'
 import './admin.css'
 
@@ -31,7 +36,6 @@ const TABS = [
 ]
 
 const PENDING_TAB_COPY = {
-  links: 'Bio links are still served from the code. Editing them here is next.',
   videos: 'The tutorial library is still served from the code. Editing it here is next.',
   banner: 'The announcement banner has not been built yet.',
   stats: 'Visitor stats need event tracking on the bio page before they can be real.',
@@ -182,6 +186,241 @@ function ShippingFeeCard({ client, onSaved }) {
 }
 
 /**
+ * @param {{ client: import('@supabase/supabase-js').SupabaseClient|null, onSaved: (message: string) => void }} props
+ */
+function buildLinkDrafts(overrides = {}) {
+  return Object.fromEntries(
+    homeControls.flatMap((group) =>
+      group.links.map((link) => {
+        const effectiveLink = applyLinkOverride(link, overrides)
+        return [
+          link.id,
+          {
+            title: effectiveLink.title ?? '',
+            desc: effectiveLink.desc ?? '',
+            href: effectiveLink.href ?? '',
+          },
+        ]
+      })
+    )
+  )
+}
+
+function isUsableOutboundUrl(value) {
+  try {
+    const url = new URL(value)
+    return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * @param {{ client: import('@supabase/supabase-js').SupabaseClient|null, onSaved: (message: string) => void }} props
+ */
+function LinkManagementCard({ client, onSaved }) {
+  const [visibility, setVisibility] = useState({})
+  const [overrides, setOverrides] = useState({})
+  const [drafts, setDrafts] = useState(() => buildLinkDrafts())
+  const [error, setError] = useState('')
+  const [savingId, setSavingId] = useState('')
+
+  useEffect(() => {
+    let active = true
+
+    Promise.all([
+      fetchLinkVisibility({ client }),
+      fetchLinkOverrides({ client }),
+    ]).then(([visibilityResult, overridesResult]) => {
+      if (!active) return
+
+      setVisibility(visibilityResult.visibility)
+      setOverrides(overridesResult.overrides)
+      setDrafts(buildLinkDrafts(overridesResult.overrides))
+    })
+
+    return () => {
+      active = false
+    }
+  }, [client])
+
+  const handleToggle = async (id) => {
+    const next = { ...visibility, [id]: visibility[id] === false }
+
+    setVisibility(next)
+    setError('')
+    setSavingId(id)
+
+    const result = await updateLinkVisibility(next, { client })
+    setSavingId('')
+
+    if (!result.ok) {
+      setVisibility(visibility)
+      setError(result.error ?? 'Could not save link visibility.')
+      return
+    }
+
+    onSaved('Link visibility saved')
+  }
+
+  const handleDraftChange = (id, field, value) => {
+    setDrafts((current) => ({
+      ...current,
+      [id]: {
+        ...current[id],
+        [field]: value,
+      },
+    }))
+  }
+
+  const handleSaveDetails = async (link) => {
+    const draft = drafts[link.id] ?? { title: '', desc: '', href: '' }
+    const title = draft.title.trim()
+    const desc = draft.desc.trim()
+    const href = draft.href.trim()
+
+    if (!title) {
+      setError(`Enter a title for ${link.title}.`)
+      return
+    }
+
+    if (link.canEditHref && !isUsableOutboundUrl(href)) {
+      setError(`Enter a valid URL for ${title}.`)
+      return
+    }
+
+    const nextOverride = { title, desc }
+    if (link.canEditHref) nextOverride.href = href
+
+    const nextOverrides = { ...overrides, [link.id]: nextOverride }
+
+    setOverrides(nextOverrides)
+    setError('')
+    setSavingId(link.id)
+
+    const result = await updateLinkOverrides(nextOverrides, { client })
+    setSavingId('')
+
+    if (!result.ok) {
+      setOverrides(overrides)
+      setError(result.error ?? 'Could not save link details.')
+      return
+    }
+
+    onSaved('Link details saved')
+  }
+
+  return (
+    <section className="admin-panel admin-panel--links">
+      <div className="admin-panel-head">
+        <h2 className="admin-panel-title">Home page buttons</h2>
+        <p className="admin-panel-sub">Edit button copy, URLs, and visibility on the public links page.</p>
+      </div>
+
+      {error && (
+        <p className="admin-error" role="alert">
+          {error}
+        </p>
+      )}
+
+      <div className="admin-link-groups">
+        {homeControls.map((group) => (
+          <div className="admin-link-group" key={group.id}>
+            <h3 className="admin-link-group-title">{group.label}</h3>
+            <div className="admin-link-toggle-list">
+              {group.links.map((link) => {
+                const enabled = visibility[link.id] !== false
+                const isSaving = savingId === link.id
+                const draft = drafts[link.id] ?? { title: link.title, desc: link.desc, href: link.href ?? '' }
+
+                return (
+                  <div className="admin-link-editor" key={link.id}>
+                    <label className="admin-link-toggle">
+                      <span className="admin-link-toggle-copy">
+                        <span className="admin-link-toggle-title">{draft.title || link.title}</span>
+                        <span className="admin-link-toggle-desc">
+                          {link.adminDesc ?? draft.desc ?? link.desc}
+                        </span>
+                      </span>
+                      <input
+                        className="admin-switch-input"
+                        type="checkbox"
+                        checked={enabled}
+                        disabled={Boolean(savingId)}
+                        onChange={() => handleToggle(link.id)}
+                      />
+                      <span className="admin-switch" aria-hidden="true">
+                        <span className="admin-switch-thumb"></span>
+                      </span>
+                      <span className="admin-link-toggle-state">
+                        {isSaving ? 'Saving' : enabled ? 'Visible' : 'Hidden'}
+                      </span>
+                    </label>
+
+                    <div className="admin-link-edit-fields">
+                      <label className="admin-field">
+                        <span className="admin-field-label">Title</span>
+                        <input
+                          className="admin-input admin-input--link-edit"
+                          value={draft.title}
+                          onChange={(event) =>
+                            handleDraftChange(link.id, 'title', event.target.value)
+                          }
+                        />
+                      </label>
+
+                      <label className="admin-field">
+                        <span className="admin-field-label">Description</span>
+                        <input
+                          className="admin-input admin-input--link-edit"
+                          value={draft.desc}
+                          onChange={(event) =>
+                            handleDraftChange(link.id, 'desc', event.target.value)
+                          }
+                        />
+                      </label>
+
+                      {link.canEditHref && (
+                        <label className="admin-field admin-link-edit-url">
+                          <span className="admin-field-label">URL</span>
+                          <input
+                            className="admin-input admin-input--link-edit"
+                            type="url"
+                            value={draft.href}
+                            onChange={(event) =>
+                              handleDraftChange(link.id, 'href', event.target.value)
+                            }
+                          />
+                        </label>
+                      )}
+
+                      {!link.canEditHref && (
+                        <p className="admin-link-function-note">
+                          Uses the built-in {link.kind === 'route' ? 'page route' : 'button action'}.
+                        </p>
+                      )}
+
+                      <button
+                        className="admin-row-save admin-link-save"
+                        type="button"
+                        disabled={Boolean(savingId)}
+                        onClick={() => handleSaveDetails(link)}
+                      >
+                        {isSaving ? 'Saving…' : 'Save details'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/**
  * @param {{ client?: import('@supabase/supabase-js').SupabaseClient|null, onBack?: () => void }} props
  */
 export function Admin({ client = createAdminSupabaseClient(), onBack }) {
@@ -271,6 +510,18 @@ export function Admin({ client = createAdminSupabaseClient(), onBack }) {
             <div className="admin-grid">
               <ShippingFeeCard client={client} onSaved={showToast} />
               <ProductsCard client={client} onSaved={showToast} />
+            </div>
+          </>
+        ) : tab === 'links' ? (
+          <>
+            <div className="admin-head">
+              <h1 className="admin-title">Links</h1>
+              <p className="admin-sub">
+                Hide or show the buttons customers see on the public links page.
+              </p>
+            </div>
+            <div className="admin-grid admin-grid--single">
+              <LinkManagementCard client={client} onSaved={showToast} />
             </div>
           </>
         ) : (

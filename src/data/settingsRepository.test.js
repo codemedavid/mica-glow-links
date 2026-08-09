@@ -1,9 +1,17 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   DEFAULT_SHIPPING_FEE,
+  LINK_OVERRIDES_KEY,
+  LINK_VISIBILITY_KEY,
   normalizeShippingFee,
+  normalizeLinkOverrides,
+  normalizeLinkVisibility,
   fetchShippingFee,
+  fetchLinkOverrides,
+  fetchLinkVisibility,
   updateShippingFee,
+  updateLinkOverrides,
+  updateLinkVisibility,
 } from './settingsRepository'
 
 /**
@@ -71,6 +79,74 @@ describe('normalizeShippingFee — trusting the stored value', () => {
 
   it('returns null when the value object has no amount at all', () => {
     expect(normalizeShippingFee({ key: SHIPPING_KEY, value: {} })).toBeNull()
+  })
+})
+
+describe('normalizeLinkVisibility — trusting only boolean toggles', () => {
+  it('reads boolean values from the settings row', () => {
+    expect(
+      normalizeLinkVisibility({
+        key: LINK_VISIBILITY_KEY,
+        value: { visibility: { 'peptide-calculator': false, 'price-list': true } },
+      })
+    ).toEqual({ 'peptide-calculator': false, 'price-list': true })
+  })
+
+  it('drops non-boolean values rather than guessing', () => {
+    expect(
+      normalizeLinkVisibility({
+        value: { visibility: { 'peptide-calculator': 'false', 'price-list': true } },
+      })
+    ).toEqual({ 'price-list': true })
+  })
+
+  it('returns null when the row is missing or malformed', () => {
+    expect(normalizeLinkVisibility(null)).toBeNull()
+    expect(normalizeLinkVisibility({ value: {} })).toBeNull()
+    expect(normalizeLinkVisibility({ value: { visibility: [] } })).toBeNull()
+  })
+})
+
+describe('normalizeLinkOverrides — trusting only editable text fields', () => {
+  it('reads title, description, and href overrides from the settings row', () => {
+    expect(
+      normalizeLinkOverrides({
+        key: LINK_OVERRIDES_KEY,
+        value: {
+          overrides: {
+            'price-list': {
+              title: 'Updated prices',
+              desc: 'Fresh catalogue',
+              href: 'https://example.com/prices',
+            },
+          },
+        },
+      })
+    ).toEqual({
+      'price-list': {
+        title: 'Updated prices',
+        desc: 'Fresh catalogue',
+        href: 'https://example.com/prices',
+      },
+    })
+  })
+
+  it('drops non-string fields rather than guessing', () => {
+    expect(
+      normalizeLinkOverrides({
+        value: {
+          overrides: {
+            'price-list': { title: 'Prices', desc: null, href: 123 },
+          },
+        },
+      })
+    ).toEqual({ 'price-list': { title: 'Prices' } })
+  })
+
+  it('returns null when the row is missing or malformed', () => {
+    expect(normalizeLinkOverrides(null)).toBeNull()
+    expect(normalizeLinkOverrides({ value: {} })).toBeNull()
+    expect(normalizeLinkOverrides({ value: { overrides: [] } })).toBeNull()
   })
 })
 
@@ -144,6 +220,70 @@ describe('fetchShippingFee — degrading without blanking the calculator', () =>
     const result = await fetchShippingFee({ client: null, fallback: 99 })
 
     expect(result.amount).toBe(99)
+  })
+})
+
+describe('fetchLinkVisibility — degrading without hiding links', () => {
+  it('returns the stored visibility map when Supabase answers', async () => {
+    const result = await fetchLinkVisibility({
+      client: clientReturning({
+        data: { value: { visibility: { 'peptide-calculator': false } } },
+        error: null,
+      }),
+    })
+
+    expect(result).toEqual({
+      visibility: { 'peptide-calculator': false },
+      source: 'supabase',
+      error: null,
+    })
+  })
+
+  it('falls back to visible-by-default when no client is configured', async () => {
+    const result = await fetchLinkVisibility({ client: null })
+
+    expect(result).toEqual({ visibility: {}, source: 'fallback', error: null })
+  })
+
+  it('falls back when Supabase errors', async () => {
+    const result = await fetchLinkVisibility({
+      client: clientReturning({ data: null, error: { message: 'permission denied' } }),
+    })
+
+    expect(result.visibility).toEqual({})
+    expect(result.error).toBe('permission denied')
+  })
+})
+
+describe('fetchLinkOverrides — degrading without changing links', () => {
+  it('returns the stored overrides when Supabase answers', async () => {
+    const result = await fetchLinkOverrides({
+      client: clientReturning({
+        data: { value: { overrides: { 'price-list': { title: 'Updated prices' } } } },
+        error: null,
+      }),
+    })
+
+    expect(result).toEqual({
+      overrides: { 'price-list': { title: 'Updated prices' } },
+      source: 'supabase',
+      error: null,
+    })
+  })
+
+  it('falls back to no overrides when no client is configured', async () => {
+    const result = await fetchLinkOverrides({ client: null })
+
+    expect(result).toEqual({ overrides: {}, source: 'fallback', error: null })
+  })
+
+  it('falls back when Supabase errors', async () => {
+    const result = await fetchLinkOverrides({
+      client: clientReturning({ data: null, error: { message: 'permission denied' } }),
+    })
+
+    expect(result.overrides).toEqual({})
+    expect(result.error).toBe('permission denied')
   })
 })
 
@@ -225,5 +365,101 @@ describe('updateShippingFee — writing the owner’s new fee', () => {
     }
 
     expect(await updateShippingFee(180, { client })).toEqual({ ok: false, error: 'offline' })
+  })
+})
+
+describe('updateLinkVisibility — writing button on/off states', () => {
+  const upsertSpy = (result) => {
+    const upsert = vi.fn(() => Promise.resolve(result))
+    return { upsert, client: { from: vi.fn(() => ({ upsert })) } }
+  }
+
+  it('upserts the visibility map onto the link_visibility settings row', async () => {
+    const { upsert, client } = upsertSpy({ error: null })
+
+    await updateLinkVisibility({ 'peptide-calculator': false, 'price-list': true }, { client })
+
+    expect(client.from).toHaveBeenCalledWith(SETTINGS_TABLE)
+    expect(upsert).toHaveBeenCalledWith(
+      {
+        key: LINK_VISIBILITY_KEY,
+        value: { visibility: { 'peptide-calculator': false, 'price-list': true } },
+      },
+      { onConflict: 'key' }
+    )
+  })
+
+  it('reports success so the admin page can confirm the save', async () => {
+    const { client } = upsertSpy({ error: null })
+
+    expect(await updateLinkVisibility({ 'peptide-calculator': false }, { client })).toEqual({
+      ok: true,
+      error: null,
+    })
+  })
+
+  it('refuses to write when nobody is signed in', async () => {
+    const result = await updateLinkVisibility({ 'peptide-calculator': false }, { client: null })
+
+    expect(result.ok).toBe(false)
+    expect(result.error).toMatch(/sign|auth/i)
+  })
+
+  it('surfaces a row-level-security rejection as a readable failure', async () => {
+    const { client } = upsertSpy({
+      error: { message: 'new row violates row-level security policy' },
+    })
+
+    const result = await updateLinkVisibility({ 'peptide-calculator': false }, { client })
+
+    expect(result.ok).toBe(false)
+    expect(result.error).toMatch(/row-level security/)
+  })
+})
+
+describe('updateLinkOverrides — writing editable link details', () => {
+  const upsertSpy = (result) => {
+    const upsert = vi.fn(() => Promise.resolve(result))
+    return { upsert, client: { from: vi.fn(() => ({ upsert })) } }
+  }
+
+  it('upserts editable details onto the link_overrides settings row', async () => {
+    const { upsert, client } = upsertSpy({ error: null })
+
+    await updateLinkOverrides(
+      { 'price-list': { title: 'Updated prices', desc: 'Fresh list', href: 'https://example.com' } },
+      { client }
+    )
+
+    expect(client.from).toHaveBeenCalledWith(SETTINGS_TABLE)
+    expect(upsert).toHaveBeenCalledWith(
+      {
+        key: LINK_OVERRIDES_KEY,
+        value: {
+          overrides: {
+            'price-list': {
+              title: 'Updated prices',
+              desc: 'Fresh list',
+              href: 'https://example.com',
+            },
+          },
+        },
+      },
+      { onConflict: 'key' }
+    )
+  })
+
+  it('reports success so the admin page can confirm the save', async () => {
+    const { client } = upsertSpy({ error: null })
+
+    expect(await updateLinkOverrides({ 'price-list': { title: 'Updated prices' } }, { client }))
+      .toEqual({ ok: true, error: null })
+  })
+
+  it('refuses to write when nobody is signed in', async () => {
+    const result = await updateLinkOverrides({ 'price-list': { title: 'Updated prices' } }, { client: null })
+
+    expect(result.ok).toBe(false)
+    expect(result.error).toMatch(/sign|auth/i)
   })
 })

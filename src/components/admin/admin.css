@@ -257,6 +257,10 @@
   align-items: start;
 }
 
+.admin-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 /* ===== Panels ===== */
 
 .admin-panel {
@@ -303,6 +307,202 @@
   font-size: 12.5px;
   line-height: 1.55;
   color: var(--admin-ink-faint);
+}
+
+/* ===== Link Visibility ===== */
+
+.admin-panel--links {
+  gap: 18px;
+}
+
+.admin-link-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-link-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.admin-link-group-title {
+  margin: 0;
+  padding-left: 4px;
+  color: var(--admin-accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-link-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-link-editor {
+  padding: 12px;
+  border-radius: 17px;
+  border: 1px solid rgba(196, 181, 253, 0.16);
+  background: rgba(12, 6, 26, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-link-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(54px, auto);
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.admin-link-toggle:has(.admin-switch-input:focus-visible) {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.admin-link-toggle-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-link-toggle-title {
+  color: var(--admin-ink);
+  font-size: 13.5px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.admin-link-toggle-desc {
+  color: var(--admin-ink-faint);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.admin-switch-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-switch {
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(196, 181, 253, 0.18);
+  transition:
+    background var(--admin-duration) var(--admin-ease),
+    border-color var(--admin-duration) var(--admin-ease);
+}
+
+.admin-switch-thumb {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  transition: transform var(--admin-duration) var(--admin-ease);
+}
+
+.admin-switch-input:checked + .admin-switch {
+  border-color: rgba(110, 231, 183, 0.55);
+  background: linear-gradient(135deg, #14b8a6, #8b5cf6);
+}
+
+.admin-switch-input:checked + .admin-switch .admin-switch-thumb {
+  transform: translateX(20px);
+}
+
+.admin-switch-input:disabled + .admin-switch {
+  opacity: 0.55;
+}
+
+.admin-link-toggle-state {
+  color: var(--admin-ink-soft);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.admin-link-edit-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.admin-link-edit-url {
+  grid-column: 1 / -2;
+}
+
+.admin-input--link-edit {
+  min-height: 42px;
+  font-size: 13px;
+}
+
+.admin-link-function-note {
+  grid-column: 1 / -2;
+  margin: 0;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  color: var(--admin-ink-faint);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.admin-link-save {
+  align-self: end;
+  white-space: nowrap;
+}
+
+@media (max-width: 430px) {
+  .admin-link-toggle {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'copy switch'
+      'state state';
+    gap: 8px 12px;
+  }
+
+  .admin-link-toggle-copy {
+    grid-area: copy;
+  }
+
+  .admin-switch {
+    grid-area: switch;
+  }
+
+  .admin-link-toggle-state {
+    grid-area: state;
+    text-align: left;
+  }
+
+  .admin-link-edit-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-link-edit-url,
+  .admin-link-function-note {
+    grid-column: auto;
+  }
+
+  .admin-link-save {
+    width: 100%;
+  }
 }
 
 /* ===== Fields ===== */
@@ -782,14 +982,13 @@
       minmax(0, calc(var(--admin-shell) - var(--admin-nav)))
       minmax(24px, 1fr);
     grid-template-areas:
-      '. header header .'
-      '. nav    body   .';
+      'header header header header'
+      '.      nav    body   .';
     justify-items: stretch;
   }
 
   .admin-header {
-    max-width: none;
-    padding: 16px 0;
+    padding-block: 16px;
   }
 
   .admin-brand-name {

@@ -2,15 +2,21 @@ import { useEffect, useState } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import './App.css'
 import './components/home/home.css'
+import { fetchLinkOverrides, fetchLinkVisibility } from './data/settingsRepository'
+import {
+  adminLinks,
+  applyAdminLinkOverrides,
+  applyGroupOverrides,
+  applyLinkOverride,
+  contactAdminLink,
+  groupBuyLink,
+  linkGroups,
+} from './data/homeLinks'
+import { createSupabaseClient } from './lib/supabase'
 import { OrderCalculator } from './components/order-calculator/OrderCalculator'
 import { PeptideCalculator } from './components/peptide-calculator/PeptideCalculator'
 import { Tutorials } from './components/tutorials/Tutorials'
 import { Admin } from './components/admin/Admin'
-
-const COMMUNITY_URL = 'https://t.me/+YqOUF5FOwK9jNDE9'
-const MASTERCLASS_URL =
-  'https://docs.google.com/document/d/13ZxEBVB8vavnWMsOn0btVwSt4k2tV45v/edit'
-const CONSULTATION_URL = 'https://nowserving.seriousmd.com/doctor/andrei-francis-flandes'
 
 // Full-page views rendered in place of the links list, keyed by URL hash.
 const VIEW_BY_HASH = {
@@ -20,126 +26,6 @@ const VIEW_BY_HASH = {
   '#tutorials': 'tutorials',
   '#admin': 'admin',
 }
-
-// Homepage links grouped into labeled sections (Links.dc.html design).
-// kind: 'external' opens a new tab, 'route' navigates a hash view,
-// 'protected' opens the access-code gate before the masterclass.
-// variant: optional modifier class for links that need their own accent.
-const linkGroups = [
-  {
-    id: 'consult',
-    label: 'CONSULT',
-    links: [
-      {
-        id: 'book-consultation',
-        icon: '🩺',
-        title: 'Book a Consultation',
-        desc: 'GLP-1 guidance with Dr. Andrei Francis Flandes',
-        href: CONSULTATION_URL,
-        kind: 'external',
-        variant: 'consult',
-      },
-    ],
-  },
-  {
-    id: 'shop',
-    label: 'SHOP',
-    links: [
-      {
-        id: 'price-list',
-        icon: '💜',
-        title: 'Price List',
-        desc: 'Full catalog with updated per-vial pricing',
-        href: 'https://docs.google.com/spreadsheets/d/1Akr_wwyNCsMjfKLsEINCNU54Ln61kXM2cfxhKUVwLuk/edit?gid=0#gid=0',
-        kind: 'external',
-      },
-      {
-        id: 'order-calculator',
-        icon: '🧾',
-        title: 'Order Calculator',
-        desc: 'Build your order and see your total instantly',
-        href: '#order',
-        kind: 'route',
-      },
-    ],
-  },
-  {
-    id: 'community',
-    label: 'COMMUNITY',
-    links: [
-      {
-        id: 'telegram-community',
-        icon: '💬',
-        title: 'Join Community',
-        desc: 'Group buy announcements, Q&A, and support',
-        href: COMMUNITY_URL,
-        kind: 'external',
-      },
-      {
-        id: 'customer-reviews',
-        icon: '⭐',
-        title: 'Customer Reviews',
-        desc: 'Real deliveries and community wins',
-        href: '#reviews',
-        kind: 'route',
-      },
-    ],
-  },
-  {
-    id: 'learn',
-    label: 'LEARN & VERIFY',
-    links: [
-      {
-        id: 'peptide-calculator',
-        icon: '💉',
-        title: 'Peptide Calculator',
-        desc: 'Reconstitution and dosing — see your exact draw',
-        href: '#peptide',
-        kind: 'route',
-      },
-      {
-        id: 'video-tutorials',
-        icon: '🎥',
-        title: 'Video Tutorials',
-        desc: 'Watch & learn — reconstitution, pens, and dosing',
-        href: '#tutorials',
-        kind: 'route',
-      },
-      {
-        id: 'e-guides',
-        icon: '📘',
-        title: 'Electronic Guides',
-        desc: 'Step-by-step guides and references',
-        href: 'https://drive.google.com/drive/folders/1tNuXfOSXyQyyck7BK-BqZNIbvNBpLgXR',
-        kind: 'external',
-      },
-      {
-        id: 'coa',
-        icon: '📋',
-        title: 'COA',
-        desc: 'Certificates of analysis and lab tests',
-        href: 'https://drive.google.com/drive/folders/18cfTEy6FIXlJTcrxoPpeRlr-BzbTG4Kn',
-        kind: 'external',
-      },
-      {
-        id: 'access-doc',
-        icon: '🔐',
-        title: 'Advance Peptide Masterclass',
-        desc: 'Exclusive access for members',
-        href: MASTERCLASS_URL,
-        kind: 'protected',
-      },
-    ],
-  },
-]
-
-const adminLinks = [
-  { id: 'admin-phoebe', text: 'Admin Phoebe', href: 'https://api.whatsapp.com/send?phone=639686450947' },
-  { id: 'admin-glia', text: 'Admin Glia', href: 'https://api.whatsapp.com/send?phone=639062364792' },
-  { id: 'admin-james', text: 'Admin James', href: 'https://api.whatsapp.com/send?phone=639054620846' },
-  { id: 'admin-danica', text: 'Admin Danica', href: 'https://api.whatsapp.com/send?phone=639302121321' },
-  { id: 'admin-jonina', text: 'Admin Jonina', href: 'https://api.whatsapp.com/send?phone=639058429200' },
-]
 
 const allCustomerReviews = Array.from({ length: 63 }, (_, index) => {
   const number = String(index + 1).padStart(2, '0')
@@ -159,6 +45,8 @@ function App() {
   const [accessError, setAccessError] = useState('')
   const [view, setView] = useState('home')
   const [activeReview, setActiveReview] = useState(null)
+  const [linkVisibility, setLinkVisibility] = useState({})
+  const [linkOverrides, setLinkOverrides] = useState({})
 
   useEffect(() => {
     // Parallax effect for background glows
@@ -187,6 +75,48 @@ function App() {
     window.addEventListener('hashchange', syncView)
     return () => window.removeEventListener('hashchange', syncView)
   }, [])
+
+  useEffect(() => {
+    let active = true
+
+    const client = createSupabaseClient()
+
+    Promise.all([
+      fetchLinkVisibility({ client }),
+      fetchLinkOverrides({ client }),
+    ]).then(([visibilityResult, overridesResult]) => {
+      if (!active) return
+
+      if (Object.keys(visibilityResult.visibility).length > 0) {
+        setLinkVisibility(visibilityResult.visibility)
+      }
+
+      if (Object.keys(overridesResult.overrides).length > 0) {
+        setLinkOverrides(overridesResult.overrides)
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const isLinkVisible = (id) => linkVisibility[id] !== false
+  const effectiveGroupBuy = applyLinkOverride(groupBuyLink, linkOverrides)
+  const effectiveGroups = applyGroupOverrides(linkGroups, linkOverrides)
+  const effectiveAdminLinks = applyAdminLinkOverrides(adminLinks, linkOverrides)
+  const effectiveContactAdmin = applyLinkOverride(contactAdminLink, linkOverrides)
+  const accessDocLink = effectiveGroups
+    .flatMap((group) => group.links)
+    .find((link) => link.id === 'access-doc')
+  const visibleGroups = effectiveGroups
+    .map((group) => ({
+      ...group,
+      links: group.links.filter((link) => isLinkVisible(link.id)),
+    }))
+    .filter((group) => group.links.length > 0)
+  const visibleAdminLinks = effectiveAdminLinks.filter((admin) => isLinkVisible(admin.id))
+  const showContactAdmin = isLinkVisible('contact-admin') && visibleAdminLinks.length > 0
 
   const handleRipple = (e) => {
     const button = e.currentTarget
@@ -299,27 +229,29 @@ function App() {
             </header>
 
             {/* Group buy banner */}
-            <a
-              className="group-buy"
-              href={COMMUNITY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleRipple}
-            >
-              <span className="group-buy-tag">
-                <span className="group-buy-dot" aria-hidden="true"></span>
-                GROUP BUY · NOW OPEN
-              </span>
-              <span className="group-buy-main">
-                <span className="group-buy-headline">Hurry! Group buy is now OPEN.</span>
-                <span className="group-buy-cta">Join now →</span>
-              </span>
-              <span className="group-buy-note">Not in our community yet? This takes you straight there.</span>
-            </a>
+            {isLinkVisible('group-buy') && (
+              <a
+                className="group-buy"
+                href={effectiveGroupBuy.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleRipple}
+              >
+                <span className="group-buy-tag">
+                  <span className="group-buy-dot" aria-hidden="true"></span>
+                  GROUP BUY · NOW OPEN
+                </span>
+                <span className="group-buy-main">
+                  <span className="group-buy-headline">{effectiveGroupBuy.title}</span>
+                  <span className="group-buy-cta">Join now →</span>
+                </span>
+                <span className="group-buy-note">{effectiveGroupBuy.desc}</span>
+              </a>
+            )}
 
             {/* Grouped links */}
             <nav className="home-groups" aria-label="Quick Links">
-              {linkGroups.map((group) => (
+              {visibleGroups.map((group) => (
                 <div className="home-group" key={group.id}>
                   <span className="home-group-label">{group.label}</span>
                   {group.links.map((link) => (
@@ -344,43 +276,45 @@ function App() {
               ))}
 
               {/* Contact admin group */}
-              <div className="home-group">
-                <span className="home-group-label">CONTACT</span>
-                <div className="admin-dropdown">
-                  <button
-                    type="button"
-                    className="home-link home-admin-toggle"
-                    onClick={toggleAdmin}
-                    aria-expanded={isAdminOpen}
-                  >
-                    <span className="home-link-icon" aria-hidden="true">👩‍💼</span>
-                    <span className="home-link-body">
-                      <span className="home-link-title">Contact Admin</span>
-                      <span className="home-link-desc">Message a Mica Glow admin on WhatsApp</span>
-                    </span>
-                    <span className="home-link-chevron" aria-hidden="true">›</span>
-                  </button>
-                  <div className={`home-admin-menu ${isAdminOpen ? 'open' : ''}`}>
-                    <div className="home-admin-menu-inner">
-                      {adminLinks.map((admin) => (
-                        <a
-                          key={admin.id}
-                          id={admin.id}
-                          className="home-admin-link"
-                          href={admin.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={handleRipple}
-                        >
-                          <span className="home-admin-icon" aria-hidden="true">📱</span>
-                          <span className="home-admin-name">{admin.text}</span>
-                          <span className="home-link-chevron" aria-hidden="true">›</span>
-                        </a>
-                      ))}
+              {showContactAdmin && (
+                <div className="home-group">
+                  <span className="home-group-label">CONTACT</span>
+                  <div className="admin-dropdown">
+                    <button
+                      type="button"
+                      className="home-link home-admin-toggle"
+                      onClick={toggleAdmin}
+                      aria-expanded={isAdminOpen}
+                    >
+                      <span className="home-link-icon" aria-hidden="true">👩‍💼</span>
+                      <span className="home-link-body">
+                        <span className="home-link-title">{effectiveContactAdmin.title}</span>
+                        <span className="home-link-desc">{effectiveContactAdmin.desc}</span>
+                      </span>
+                      <span className="home-link-chevron" aria-hidden="true">›</span>
+                    </button>
+                    <div className={`home-admin-menu ${isAdminOpen ? 'open' : ''}`}>
+                      <div className="home-admin-menu-inner">
+                        {visibleAdminLinks.map((admin) => (
+                          <a
+                            key={admin.id}
+                            id={admin.id}
+                            className="home-admin-link"
+                            href={admin.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={handleRipple}
+                          >
+                            <span className="home-admin-icon" aria-hidden="true">📱</span>
+                            <span className="home-admin-name">{admin.title}</span>
+                            <span className="home-link-chevron" aria-hidden="true">›</span>
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </nav>
 
             {/* Member Tag */}
@@ -447,7 +381,7 @@ function App() {
                   <div className="modal-actions">
                     <a
                       className="modal-primary"
-                      href="https://docs.google.com/document/d/13ZxEBVB8vavnWMsOn0btVwSt4k2tV45v/edit"
+                      href={accessDocLink?.href ?? '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

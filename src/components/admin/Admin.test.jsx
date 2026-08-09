@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Admin } from './Admin'
 
@@ -26,6 +26,12 @@ const PRODUCT_ROW = {
   stock: 'low',
 }
 
+const SETTINGS_ROWS = {
+  shipping_fee: { amount: 250 },
+  link_visibility: { visibility: {} },
+  link_overrides: { overrides: {} },
+}
+
 /**
  * Stand-in for the slices of supabase-js the admin page actually calls.
  *
@@ -40,6 +46,7 @@ const fakeClient = ({
   signInError = null,
   upsertError = null,
   products = [PRODUCT_ROW],
+  settings = SETTINGS_ROWS,
 } = {}) => {
   const upsert = vi.fn(() => Promise.resolve({ error: upsertError }))
   let current = session
@@ -80,9 +87,12 @@ const fakeClient = ({
 
       return {
         select: () => ({
-          eq: () => ({
+          eq: (_column, key) => ({
             maybeSingle: () =>
-              Promise.resolve({ data: { value: { amount: 250 } }, error: null }),
+              Promise.resolve({
+                data: settings[key] ? { key, value: settings[key] } : null,
+                error: null,
+              }),
           }),
         }),
         upsert,
@@ -248,6 +258,93 @@ describe('Admin — the Prices tab', () => {
     setup({ session: SESSION })
 
     await waitFor(() => expect(screen.getByLabelText(/shipping fee/i)).toHaveValue(250))
+  })
+})
+
+describe('Admin — link visibility', () => {
+  it('shows button visibility controls on the Links tab', async () => {
+    const { user } = setup({ session: SESSION })
+
+    await user.click(await screen.findByRole('button', { name: /links/i }))
+
+    expect(
+      await screen.findByRole('checkbox', { name: /peptide calculator/i })
+    ).toBeChecked()
+  })
+
+  it('saves when the owner hides the peptide calculator button', async () => {
+    const { user, client } = setup({ session: SESSION })
+
+    await user.click(await screen.findByRole('button', { name: /links/i }))
+    await user.click(await screen.findByRole('checkbox', { name: /peptide calculator/i }))
+
+    await waitFor(() =>
+      expect(client.upsert).toHaveBeenCalledWith(
+        {
+          key: 'link_visibility',
+          value: { visibility: expect.objectContaining({ 'peptide-calculator': false }) },
+        },
+        { onConflict: 'key' }
+      )
+    )
+    expect(await screen.findByRole('status')).toHaveTextContent(/saved/i)
+  })
+
+  it('loads saved link edits into the Links tab', async () => {
+    const { user } = setup({
+      session: SESSION,
+      settings: {
+        ...SETTINGS_ROWS,
+        link_overrides: {
+          overrides: {
+            'price-list': {
+              title: 'Updated Prices',
+              desc: 'Newest spreadsheet',
+              href: 'https://example.com/prices',
+            },
+          },
+        },
+      },
+    })
+
+    await user.click(await screen.findByRole('button', { name: /links/i }))
+
+    expect(await screen.findByDisplayValue('Updated Prices')).toBeVisible()
+    expect(screen.getByDisplayValue('https://example.com/prices')).toBeVisible()
+  })
+
+  it('saves edited title and URL for external links', async () => {
+    const { user, client } = setup({ session: SESSION })
+
+    await user.click(await screen.findByRole('button', { name: /links/i }))
+
+    const titleInput = await screen.findByDisplayValue('Price List')
+    const editor = titleInput.closest('.admin-link-editor')
+
+    await user.clear(titleInput)
+    await user.type(titleInput, 'Updated Prices')
+    await user.clear(within(editor).getByDisplayValue(/docs\.google\.com\/spreadsheets/i))
+    await user.type(within(editor).getByRole('textbox', { name: /url/i }), 'https://example.com/prices')
+    await user.click(within(editor).getByRole('button', { name: /save details/i }))
+
+    await waitFor(() =>
+      expect(client.upsert).toHaveBeenCalledWith(
+        {
+          key: 'link_overrides',
+          value: {
+            overrides: expect.objectContaining({
+              'price-list': {
+                title: 'Updated Prices',
+                desc: 'Full catalog with updated per-vial pricing',
+                href: 'https://example.com/prices',
+              },
+            }),
+          },
+        },
+        { onConflict: 'key' }
+      )
+    )
+    expect(await screen.findByRole('status')).toHaveTextContent(/details saved/i)
   })
 })
 
