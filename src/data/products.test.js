@@ -154,8 +154,9 @@ describe('August 4 price list — owner-confirmed corrections', () => {
     expect(get('NS10').spec).toMatch(/5 ampoules\/pack/i)
   })
 
-  it('does not mark FR5 as out of stock', () => {
-    expect(get('FR5').stock).not.toBe('out')
+  // Superseded on the 8/25 sheet: see "stock the sheet now states outright".
+  it('does not infer FR5 stock from its price cell', () => {
+    expect(get('FR5').vial).toBe(741)
   })
 
   it('excludes the Niimbot label printers, which are not peptide products', () => {
@@ -171,8 +172,92 @@ describe('August 4 price list — delisted products', () => {
   })
 })
 
-describe('August 4 price list — catalogue size', () => {
+/**
+ * Journey: As a customer, I want to search the August 25 price list and add a
+ * newly released item to my order, so that I can see what it will cost me
+ * before I message the shop.
+ *
+ * Source of truth: "Mica - Pricelist 8_25_25.xlsx", sheet "Updated Pricelist".
+ */
+describe('August 25 price list — newly listed products', () => {
+  it.each([
+    ['SP01', 399, /sponge spicule/i],
+    ['DC01', 749, /deep collagen/i],
+    ['KN01', 749, /kojic acid/i],
+    ['PV01', 749, /pdrn pink vitamin/i],
+    ['GS01', 899, /glutathione serum/i],
+    ['SC01', 899, /stem cell culture/i],
+    ['NBG60 mm', 549, /biotin gummies/i],
+    ['ORALGTT', 599, /liposomal glutathione/i],
+    ['ASMB', 190, /blue algae/i],
+    ['ASMBE', 480, /enhanced blue algae/i],
+    ['ASMBN', 250, /brown algae/i],
+    ['ASMG', 120, /green algae/i],
+    ['ASMPNK', 250, /pink algae/i],
+    ['ASMW', 250, /white algae/i],
+    ['ASMBLK', 250, /black algae/i],
+  ])('lists %s at PHP %d per unit', (code, vial, name) => {
+    expect(get(code)).toMatchObject({ code, vial })
+    expect(get(code).name).toMatch(name)
+  })
+})
+
+describe('August 25 price list — repriced products', () => {
+  it.each([
+    ['PDRNSerum', 345],
+    ['EXO30', 999],
+    ['HA5', 585],
+  ])('drops %s to PHP %d', (code, vial) => {
+    expect(get(code).vial).toBe(vial)
+  })
+})
+
+/**
+ * The August ruling was that FR5's "OUT OF STOCK" text sat in the per-vial
+ * price column, which says nothing about availability. On the 8/25 sheet the
+ * on-hand column itself reads OUT, so the stock value is now supported.
+ */
+describe('August 25 price list — stock the sheet now states outright', () => {
+  it.each([
+    ['FR5', 'out'],
+    ['BA3PHRMAGREEN', 'out'],
+    ['BA10PHRMAGREEN', 'out'],
+  ])('marks %s as %s', (code, stock) => {
+    expect(get(code).stock).toBe(stock)
+  })
+
+  it.each([
+    'TMB-GHKCU-SH250',
+    'TMB-GHKCND-CND250',
+    'TMB-AHKM100',
+    'TMB-NGO15',
+    'TMB-GHKSER30',
+    'RETALIDE',
+    'MICABLEND 3.0',
+    'EXO30',
+  ])('marks %s in stock, as the on-hand column reports', (code) => {
+    expect(get(code).stock).toBe('in')
+  })
+
+  it.each([
+    ['TR100', 'low'],
+    ['RT60', 'low'],
+    ['MICABLEND 2.0', 'low'],
+  ])('treats an explicit small count on %s as %s stock', (code, stock) => {
+    expect(get(code).stock).toBe(stock)
+  })
+
+  it('leaves to-order-basis items unknown rather than claiming stock', () => {
+    expect(get('DHA20').stock).toBe('unknown')
+  })
+})
+
+describe('August 25 price list — catalogue size', () => {
   it('carries every priced row from the Updated Pricelist sheet', () => {
-    expect(products).toHaveLength(181)
+    expect(products).toHaveLength(196)
+  })
+
+  it('lists RETALIDE once, though the sheet repeats it in two sections', () => {
+    expect(products.filter((p) => p.code === 'RETALIDE')).toHaveLength(1)
   })
 })
