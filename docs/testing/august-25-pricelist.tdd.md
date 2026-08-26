@@ -101,6 +101,31 @@ regex omitted the schema's `category` column and so matched nothing. The
 "carries every product" assertion is what exposed it — a vacuous regex fails
 that test rather than passing silently.
 
+### 5. RED → GREEN for the new items' specs
+
+Reviewing the generated rows caught a defect in user-visible copy: the
+extractor collapsed each spec cell to its **last** line, which on multi-line
+cells is sales copy rather than packaging. `NBG60 mm` read "Plus, they're
+blueberry flavored! 💜" and `ORALGTT` read "No pinning needed!…".
+
+```
+$ npx vitest run src/data/products.test.js
+      Tests  3 failed | 74 passed (77)     # both specs, plus a no-sales-copy sweep
+```
+
+Both now read their packaging line (`60 gummies | Good for 1 month`,
+`60 mL | 2,000 mg Glutathione`) and the suite is green at 77.
+
+The migration carried the same drifted specs — and `priceListSync.test.js` did
+not compare `spec` at all, so it passed while out of step with the catalogue.
+That gap was closed before regenerating the migration:
+
+```
+$ npx vitest run src/data/priceListSync.test.js
+      Tests  1 failed | 7 passed (8)       # spec comparison added
+      Tests  8 passed (8)                  # after regenerating the migration
+```
+
 ## Test specification
 
 | # | What is guaranteed | Test file | Type | Result |
@@ -118,8 +143,9 @@ that test rather than passing silently.
 | 11 | Niimbot label printers remain excluded | `products.test.js:owner-confirmed corrections` | unit | PASS |
 | 12 | The August 4 corrections and delistings still hold | `products.test.js:August 4 — corrections / delisted` | unit | PASS |
 | 13 | Catalogue holds all 196 priced rows, with RETALIDE listed once | `products.test.js:August 25 — catalogue size` | unit | PASS |
+| 13a | Specs describe packaging; no sales copy survives in any spec | `products.test.js:August 25 — specs describe packaging` | unit | PASS |
 | 14 | The migration carries every bundled product and no extras | `priceListSync.test.js` | integration | PASS |
-| 15 | Migration price and stock match the bundled catalogue exactly | `priceListSync.test.js` | integration | PASS |
+| 15 | Migration price, stock and spec match the bundled catalogue exactly | `priceListSync.test.js` | integration | PASS |
 | 16 | The migration upserts rather than skipping on conflict, and stamps `updated_at` | `priceListSync.test.js` | integration | PASS |
 | 17 | A new item is findable by name and code and totals price + shipping | `OrderCalculator.test.jsx` | integration | PASS |
 
@@ -130,7 +156,7 @@ Evidence command: `npm test`
 ```
 $ npm run test:coverage
  Test Files  15 passed (15)
-      Tests  396 passed (396)
+      Tests  400 passed (400)
 
 File               | % Stmts | % Branch | % Funcs | % Lines
 All files          |   92.55 |    87.53 |   79.37 |   92.55
@@ -144,7 +170,7 @@ Comfortably over the 80% threshold. `products.js` is at 100%. `App.jsx` (the
 links page) is pre-existing and out of scope for this task.
 
 Also verified: `npx eslint` clean on the changed files; `npm run build`
-succeeds (493.25 kB JS, 140.18 kB gzipped).
+succeeds (493.18 kB JS, 140.13 kB gzipped).
 
 ## Owner-confirmed decisions (2026-08-26)
 
@@ -194,6 +220,7 @@ Four checkpoint commits on `feat/supabase-pricelist`:
 | `87ab287` | GREEN | `products.test.js`: 74 passed; `npm test`: 389 passed |
 | `4b5f3c8` | RED | `priceListSync.test.js`: 6 failed \| 1 passed (7) |
 | `a7e9bbc` | GREEN | `priceListSync.test.js`: 7 passed; suite 396 passed, 92.55% |
+| `a37ba46` | RED→GREEN | specs: 3 failed → 77 passed; sync 1 failed → 8 passed; suite 400 passed, 92.55% |
 
 No refactor commit: the generated catalogue and migration are data, and the
 extraction logic lives in the throwaway sync script rather than in `src/`.
