@@ -22,11 +22,16 @@ describe('August 25 Supabase sync migration', () => {
 
   const sql = existsSync(PATH) ? readFileSync(PATH, 'utf8') : ''
 
+  const unquote = (v) => (v === 'null' ? null : v.slice(1, -1).replace(/''/g, "'"))
+
   /** Row shape: ('CODE', 'name', spec, price, 'stock', category) */
   const rows = new Map(
     [...sql.matchAll(
-      /^\s*\('((?:[^']|'')*)',.*,\s*([\d.]+),\s*'(in|low|out|unknown)'\s*(?:,[^)]*)?\)/gm
-    )].map((m) => [m[1].replace(/''/g, "'"), { vial: Number(m[2]), stock: m[3] }])
+      /^\s*\('((?:[^']|'')*)',\s*'(?:[^']|'')*',\s*(null|'(?:[^']|'')*'),\s*([\d.]+),\s*'(in|low|out|unknown)'\s*(?:,[^)]*)?\)/gm
+    )].map((m) => [
+      m[1].replace(/''/g, "'"),
+      { spec: unquote(m[2]), vial: Number(m[3]), stock: m[4] },
+    ])
   )
 
   it('carries every product in the bundled catalogue', () => {
@@ -54,6 +59,14 @@ describe('August 25 Supabase sync migration', () => {
     const mismatched = products
       .filter((p) => rows.get(p.code)?.stock !== p.stock)
       .map((p) => ({ code: p.code, bundled: p.stock, migration: rows.get(p.code)?.stock }))
+
+    expect(mismatched).toEqual([])
+  })
+
+  it('carries the same spec as the bundled catalogue', () => {
+    const mismatched = products
+      .filter((p) => rows.get(p.code)?.spec !== p.spec)
+      .map((p) => ({ code: p.code, bundled: p.spec, migration: rows.get(p.code)?.spec }))
 
     expect(mismatched).toEqual([])
   })

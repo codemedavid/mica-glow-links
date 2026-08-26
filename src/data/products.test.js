@@ -202,6 +202,22 @@ describe('August 25 price list — newly listed products', () => {
   })
 })
 
+describe('August 25 price list — specs describe packaging, not marketing', () => {
+  it.each([
+    ['NBG60 mm', '60 gummies | Good for 1 month'],
+    ['ORALGTT', '60 mL | 2,000 mg Glutathione'],
+  ])('describes %s by what is in the box', (code, spec) => {
+    expect(get(code).spec).toBe(spec)
+  })
+
+  it('leaves no sales copy in any spec', () => {
+    const salesy = /blueberry|no pinning needed|daily routine|💜/i
+    const bad = products.filter((p) => p.spec && salesy.test(p.spec))
+
+    expect(bad).toEqual([])
+  })
+})
+
 describe('August 25 price list — repriced products', () => {
   it.each([
     ['PDRNSerum', 345],
