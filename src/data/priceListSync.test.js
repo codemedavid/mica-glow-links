@@ -22,11 +22,11 @@ describe('August 25 Supabase sync migration', () => {
 
   const sql = existsSync(PATH) ? readFileSync(PATH, 'utf8') : ''
 
-  /** Row shape: ('CODE', 'name', spec, price, 'stock') */
+  /** Row shape: ('CODE', 'name', spec, price, 'stock', category) */
   const rows = new Map(
-    [...sql.matchAll(/^\s*\('((?:[^']|'')*)',.*?,\s*([\d.]+),\s*'(in|low|out|unknown)'\)/gm)].map(
-      (m) => [m[1].replace(/''/g, "'"), { vial: Number(m[2]), stock: m[3] }]
-    )
+    [...sql.matchAll(
+      /^\s*\('((?:[^']|'')*)',.*,\s*([\d.]+),\s*'(in|low|out|unknown)'\s*(?:,[^)]*)?\)/gm
+    )].map((m) => [m[1].replace(/''/g, "'"), { vial: Number(m[2]), stock: m[3] }])
   )
 
   it('carries every product in the bundled catalogue', () => {
