@@ -269,8 +269,14 @@ describe('August 25 price list — stock the sheet now states outright', () => {
 })
 
 describe('August 25 price list — catalogue size', () => {
+  // 196 priced rows from the Updated Pricelist sheet, plus the five SG11-SG15
+  // skincare SKUs added September 1. Split out so a future addition moves the
+  // second number and leaves the sheet's own count as the record it is.
+  const AUGUST_25_ROWS = 196
+  const ADDED_SINCE = 5
+
   it('carries every priced row from the Updated Pricelist sheet', () => {
-    expect(products).toHaveLength(196)
+    expect(products).toHaveLength(AUGUST_25_ROWS + ADDED_SINCE)
   })
 
   it('lists RETALIDE once, though the sheet repeats it in two sections', () => {

@@ -15,24 +15,35 @@ import { products } from './products'
 
 const PATH = 'supabase/migrations/0005_sync_august_25_pricelist.sql'
 
+/**
+ * Migrations that decide what the products table ends up holding, in the order
+ * Postgres applies them. The guarantee below is not "0005 alone matches the
+ * bundled catalogue" -- it is "what Supabase ends up holding matches it" -- so a
+ * later dated migration adding SKUs has to be read too, with later files winning
+ * on a shared code exactly as their upserts do.
+ */
+const CATALOGUE = [PATH, 'supabase/migrations/0006_add_september_1_skus.sql']
+
 describe('August 25 Supabase sync migration', () => {
   it('exists, so the live catalogue is updated and not just the fallback', () => {
     expect(existsSync(PATH)).toBe(true)
   })
 
-  const sql = existsSync(PATH) ? readFileSync(PATH, 'utf8') : ''
+  const read = (file) => (existsSync(file) ? readFileSync(file, 'utf8') : '')
+  const sql = read(PATH)
 
   const unquote = (v) => (v === 'null' ? null : v.slice(1, -1).replace(/''/g, "'"))
 
   /** Row shape: ('CODE', 'name', spec, price, 'stock', category) */
-  const rows = new Map(
-    [...sql.matchAll(
+  const parse = (source) =>
+    [...source.matchAll(
       /^\s*\('((?:[^']|'')*)',\s*'(?:[^']|'')*',\s*(null|'(?:[^']|'')*'),\s*([\d.]+),\s*'(in|low|out|unknown)'\s*(?:,[^)]*)?\)/gm
     )].map((m) => [
       m[1].replace(/''/g, "'"),
       { spec: unquote(m[2]), vial: Number(m[3]), stock: m[4] },
     ])
-  )
+
+  const rows = new Map(CATALOGUE.flatMap((file) => parse(read(file))))
 
   it('carries every product in the bundled catalogue', () => {
     const missing = products.filter((p) => !rows.has(p.code)).map((p) => p.code)

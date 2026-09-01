@@ -213,4 +213,12 @@ export const products = [
   { code: "ASMPNK", name: "Pink Algae Sponge Microneedles", spec: "10 pairs for a box or Pair of 5mL", vial: 250, stock: "unknown" },
   { code: "ASMW", name: "White Algae Sponge Microneedles", spec: "10 pairs for a box or Pair of 5mL", vial: 250, stock: "unknown" },
   { code: "ASMBLK", name: "Black Algae Sponge Microneedles", spec: "10 pairs for a box or Pair of 5mL", vial: 250, stock: "unknown" },
+
+  // Added September 1. Specs are the packaging line from the price list, not
+  // the sales copy; stock is unknown because the sheet leaves those columns blank.
+  { code: "SG11", name: "PDRN Peptide Eye Patches", spec: "30 pairs / 85 grams", vial: 499, stock: "unknown" },
+  { code: "SG12", name: "Dark Spot Brightening Cream", spec: "35 mL Tube", vial: 499, stock: "unknown" },
+  { code: "SG13", name: "Rejuvenating Solution Serum", spec: "10ml x 5 vials", vial: 699, stock: "unknown" },
+  { code: "SG14", name: "Microbiome Radiance Ampoule", spec: "7ml x 5 Ampoules", vial: 649, stock: "unknown" },
+  { code: "SG15", name: "Kojic Acid Brightening Cream", spec: "50.7grams tube", vial: 499, stock: "unknown" },
 ]
