@@ -27,3 +27,8 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Social-proof reel toolchain
+video/node_modules
+video/out
+video/tmp

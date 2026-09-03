@@ -43,9 +43,11 @@ export const REVIEWS = [
     caption: 'Another successful order',
     transcript: 'Thankee Nakshie @Mica .. as in super bilis.. Delivered GB 1/16..',
     quote: 'as in super bilis.. Delivered GB 1/16..',
-    crop: { x: 0.15, y: 0.035, w: 0.8, h: 0.87 },
-    // Second box hides the itemised order list printed on the parcel label.
-    redactions: [USERNAME_STRIP, { x: 0.34, y: 0.5, w: 0.45, h: 0.13 }],
+    crop: { x: 0.125, y: 0.035, w: 0.86, h: 0.87 },
+    // A shorter strip than USERNAME_STRIP: on this taller screenshot 8% of the
+    // height reaches down into the first line of the message. The second box
+    // hides the itemised order list printed on the parcel label.
+    redactions: [{ x: 0, y: 0, w: 0.4, h: 0.045 }, { x: 0.34, y: 0.5, w: 0.45, h: 0.13 }],
     hasPrivateDetails: true,
   },
   {
@@ -102,7 +104,7 @@ export const REVIEWS = [
     transcript:
       'Thank you mama mics! nabigla ako sa message ni admin Phoebe, paulit ulit ko pang tiningnan kasi akala ko lutang lang ako dahil nakainom na akong melatonin. Hahaha 3rd transaction ko na po ito sainyo.',
     quote: '3rd transaction ko na po ito sainyo.',
-    crop: { x: 0.02, y: 0, w: 0.96, h: 0.29 },
+    crop: { x: 0, y: 0, w: 1, h: 0.315 },
     redactions: [],
     hasPrivateDetails: false,
   },
