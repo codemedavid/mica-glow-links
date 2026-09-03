@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-import { APPROVED_CAPTIONS, CTA, HOOK, REVIEWS } from './reviews.js'
+import { ALLOWED_VISUALS, APPROVED_CAPTIONS, BRAND, CTA, HOOK, REVIEWS } from './reviews.js'
 import { FPS, HEIGHT, WIDTH, buildTimeline, secondsToFrames } from './timeline.js'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -184,5 +184,52 @@ describe('privacy redaction', () => {
       expect(x + w).toBeLessThanOrEqual(1)
       expect(y + h).toBeLessThanOrEqual(1)
     }
+  })
+})
+
+describe('product imagery', () => {
+  it('offers no vocabulary for vials or product shots', () => {
+    for (const visual of ALLOWED_VISUALS) {
+      expect(visual).not.toMatch(/vial|product|peptide/i)
+    }
+  })
+
+  it('shows nothing outside the allowed subject vocabulary', () => {
+    for (const review of REVIEWS) {
+      expect(review.visuals.length).toBeGreaterThan(0)
+      for (const visual of review.visuals) {
+        expect(ALLOWED_VISUALS).toContain(visual)
+      }
+    }
+  })
+
+  it('keeps the customer message visible in every single-review scene', () => {
+    const timeline = buildTimeline()
+    const reviewScenes = timeline.scenes.filter((scene) => scene.type === 'review')
+
+    for (const scene of reviewScenes) {
+      expect(scene.review.visuals).toContain('message-text')
+    }
+  })
+})
+
+describe('brand treatment', () => {
+  it('names a logo asset for the intro and the watermark', () => {
+    expect(BRAND.logo).toBe('brand-mark.png')
+  })
+
+  it('tints the frame enough to be seen but not enough to fight the text', () => {
+    expect(BRAND.tintAlpha).toBeGreaterThan(0)
+    expect(BRAND.tintAlpha).toBeLessThanOrEqual(0.12)
+  })
+
+  it('keeps the repeating watermark faint enough to read through', () => {
+    expect(BRAND.watermarkAlpha).toBeGreaterThan(0)
+    expect(BRAND.watermarkAlpha).toBeLessThanOrEqual(0.12)
+  })
+
+  it('keeps the backdrop logo faint enough to stay behind the reviews', () => {
+    expect(BRAND.backdropAlpha).toBeGreaterThan(0)
+    expect(BRAND.backdropAlpha).toBeLessThanOrEqual(0.12)
   })
 })
