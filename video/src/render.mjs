@@ -9,9 +9,9 @@ import { once } from 'node:events'
 import { createCanvas, loadImage } from '@napi-rs/canvas'
 import ffmpegPath from 'ffmpeg-static'
 
-import { CTA, REVIEWS } from './reviews.js'
+import { BRAND, CTA, REVIEWS } from './reviews.js'
 import { FPS, HEIGHT, WIDTH, buildTimeline } from './timeline.js'
-import { drawBackground, drawBrandMark, drawFooter } from './draw.mjs'
+import { drawBackground, drawBrandMark, drawBrandOverlay, drawFooter, setBrandMark } from './draw.mjs'
 import { drawCollageScene, drawCtaScene, drawHookScene, drawReviewScene } from './scenes.mjs'
 
 const VIDEO_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -42,6 +42,13 @@ async function loadAssets() {
     }
     assets.set(review.asset, await loadImage(file))
   }
+
+  const markFile = path.join(ASSET_DIR, BRAND.logo)
+  if (!existsSync(markFile)) {
+    throw new Error(`Missing ${BRAND.logo}. Run: npm run prepare-assets`)
+  }
+  setBrandMark(await loadImage(markFile))
+
   return assets
 }
 
@@ -69,6 +76,9 @@ function drawFrame(ctx, timeline, frame, assets) {
     default:
       throw new Error(`Unknown scene type: ${scene.type}`)
   }
+
+  // Ownership marking sits above the artwork so a lifted screenshot carries it.
+  drawBrandOverlay(ctx, WIDTH, HEIGHT)
 
   if (scene.type !== 'cta') {
     drawBrandMark(ctx, WIDTH)

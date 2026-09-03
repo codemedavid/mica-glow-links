@@ -4,6 +4,7 @@ import {
   PALETTE,
   SANS,
   clamp,
+  getBrandMark,
   drawCaptionPill,
   drawImageCard,
   drawTracked,
@@ -25,6 +26,17 @@ export function sceneAlpha(local, duration) {
 }
 
 const CARD_BOX = { x: 70, y: 336, w: 940, h: 1150 }
+
+// Text-only crops of short chat messages are wide and shallow. Centred in the
+// full card area they float in a void, so the shorter the card the closer it
+// sits to the pull-quote beneath it.
+function cardBoxFor(image) {
+  const fitted = image.height * Math.min(CARD_BOX.w / image.width, CARD_BOX.h / image.height)
+  const fullness = clamp(fitted / CARD_BOX.h, 0, 1)
+  const centreY = lerp(1120, CARD_BOX.y + CARD_BOX.h / 2, fullness)
+
+  return { ...CARD_BOX, y: centreY - CARD_BOX.h / 2 }
+}
 
 export function drawReviewScene(ctx, scene, local, assets) {
   const p = local / scene.durationInFrames
@@ -90,6 +102,48 @@ function drawQuoteStrip(ctx, quote, p) {
   ctx.restore()
 }
 
+// Every tile is the same plate whatever the screenshot's shape. Cropping a
+// wide text-only crop to fill would enlarge it into an unreadable fragment,
+// and letting it float leaves a ragged grid, so the artwork is fitted whole
+// and centred on a consistent card instead.
+function drawCollageTile(ctx, image, box) {
+  ctx.save()
+  ctx.shadowColor = 'rgba(0,0,0,0.5)'
+  ctx.shadowBlur = 26
+  ctx.shadowOffsetY = 10
+  ctx.fillStyle = 'rgba(14, 9, 26, 0.86)'
+  roundRect(ctx, box.x, box.y, box.w, box.h, 26)
+  ctx.fill()
+  ctx.restore()
+
+  const inset = 14
+  const innerW = box.w - inset * 2
+  const innerH = box.h - inset * 2
+  const scale = Math.min(innerW / image.width, innerH / image.height)
+  const drawW = image.width * scale
+  const drawH = image.height * scale
+
+  ctx.save()
+  roundRect(ctx, box.x, box.y, box.w, box.h, 26)
+  ctx.clip()
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(
+    image,
+    box.x + (box.w - drawW) / 2,
+    box.y + (box.h - drawH) / 2,
+    drawW,
+    drawH,
+  )
+  ctx.restore()
+
+  ctx.save()
+  ctx.lineWidth = 1.5
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'
+  roundRect(ctx, box.x, box.y, box.w, box.h, 26)
+  ctx.stroke()
+  ctx.restore()
+}
+
 export function drawCollageScene(ctx, scene, local, assets) {
   const alpha = sceneAlpha(local, scene.durationInFrames)
   const p = local / scene.durationInFrames
@@ -124,13 +178,10 @@ export function drawCollageScene(ctx, scene, local, assets) {
     ctx.translate(box.x + box.w / 2, box.y + box.h / 2)
     ctx.scale(scale, scale)
     ctx.translate(-(box.x + box.w / 2), -(box.y + box.h / 2))
-    drawImageCard(ctx, assets.get(review.asset), box, {
-      zoom: lerp(1, 1.03, p),
-      radius: 26,
-      fit: 'cover',
-    })
+    drawCollageTile(ctx, assets.get(review.asset), box)
     ctx.restore()
   })
+
   ctx.restore()
 }
 
@@ -172,6 +223,17 @@ export function drawHookScene(ctx, scene, local, assets, wallAssets) {
   ctx.translate(0, lerp(36, 0, enter))
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
+
+  // Branded from the first frame: the roundel lands above the headline.
+  const mark = getBrandMark()
+  if (mark) {
+    const size = lerp(180, 208, enter)
+    ctx.save()
+    ctx.shadowColor = 'rgba(139,92,246,0.6)'
+    ctx.shadowBlur = 40
+    ctx.drawImage(mark, 540 - size / 2, 596 - size / 2, size, size)
+    ctx.restore()
+  }
 
   ctx.font = `700 88px ${SANS}`
   const lines = wrapText(ctx, scene.line, 900)

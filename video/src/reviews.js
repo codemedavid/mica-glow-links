@@ -12,6 +12,10 @@
 // The montage deliberately leads with delivery and service proof rather than
 // body transformations: it is what the brief asks for ("real people ordering,
 // receiving their orders") and it keeps the cut inside Meta/TikTok policy.
+//
+// No frame may show vials or product shots. Where a post was "short caption +
+// photo of vials", the crop is pulled in to the message text alone; `visuals`
+// records what each crop actually contains and is enforced by the tests.
 
 export const APPROVED_CAPTIONS = [
   'Order received ✅',
@@ -20,6 +24,19 @@ export const APPROVED_CAPTIONS = [
   'Thank you for trusting us 🫶',
   'Another successful order',
 ]
+
+// Subjects a crop is allowed to contain. There is deliberately no term for a
+// vial or a product shot, so a crop that would show one cannot be described.
+export const ALLOWED_VISUALS = ['message-text', 'parcel', 'raffle-prize']
+
+// Ownership marking. All three alphas are deliberately low: the point is to
+// make reposting awkward, not to sit on top of what customers wrote.
+export const BRAND = {
+  logo: 'brand-mark.png',
+  tintAlpha: 0.08,
+  watermarkAlpha: 0.06,
+  backdropAlpha: 0.03,
+}
 
 const USERNAME_STRIP = { x: 0, y: 0, w: 0.4, h: 0.08 }
 
@@ -32,7 +49,8 @@ export const REVIEWS = [
     transcript:
       'Received my order, thank you so much! Special thanks to @Admin James for being so helpful even while on vacation, he still replies and assists. Very easy to talk to. This is already my second group buy with them and I am very satisfied!',
     quote: 'This is already my second group buy with them and I am very satisfied!',
-    crop: { x: 0.13, y: 0.04, w: 0.85, h: 0.86 },
+    visuals: ['message-text'],
+    crop: { x: 0.13, y: 0.045, w: 0.85, h: 0.375 },
     redactions: [USERNAME_STRIP],
     hasPrivateDetails: true,
   },
@@ -43,6 +61,7 @@ export const REVIEWS = [
     caption: 'Another successful order',
     transcript: 'Thankee Nakshie @Mica .. as in super bilis.. Delivered GB 1/16..',
     quote: 'as in super bilis.. Delivered GB 1/16..',
+    visuals: ['message-text', 'parcel'],
     crop: { x: 0.125, y: 0.035, w: 0.86, h: 0.87 },
     // A shorter strip than USERNAME_STRIP: on this taller screenshot 8% of the
     // height reaches down into the first line of the message. The second box
@@ -57,6 +76,7 @@ export const REVIEWS = [
     caption: 'Another happy customer 💚',
     transcript: 'Received ko na, pang 3rd ko ng order to. GB 1/02',
     quote: 'pang 3rd ko ng order to.',
+    visuals: ['message-text', 'parcel'],
     crop: { x: 0.14, y: 0.035, w: 0.82, h: 0.89 },
     redactions: [{ x: 0, y: 0, w: 0.34, h: 0.055 }],
     hasPrivateDetails: true,
@@ -69,7 +89,8 @@ export const REVIEWS = [
     transcript:
       'Received GB 1 /9 . First time Buyer yes may stocks nako. Thank you Mama Mics & Admins',
     quote: 'First time Buyer yes may stocks nako.',
-    crop: { x: 0.14, y: 0.03, w: 0.82, h: 0.9 },
+    visuals: ['message-text'],
+    crop: { x: 0.13, y: 0.02, w: 0.84, h: 0.135 },
     redactions: [{ x: 0, y: 0, w: 0.34, h: 0.05 }],
     hasPrivateDetails: true,
   },
@@ -80,7 +101,8 @@ export const REVIEWS = [
     caption: 'Community feedback',
     transcript: 'Finally mama mics! Love from Vancouver',
     quote: 'Love from Vancouver',
-    crop: { x: 0.12, y: 0.012, w: 0.85, h: 0.9 },
+    visuals: ['message-text'],
+    crop: { x: 0.12, y: 0.015, w: 0.85, h: 0.115 },
     redactions: [{ x: 0, y: 0, w: 0.3, h: 0.045 }],
     hasPrivateDetails: true,
   },
@@ -92,6 +114,7 @@ export const REVIEWS = [
     transcript:
       'And grabe ang bait ni Mica! She really granted my request without no hesitation. I know she is genuine sa lahat ng ginagawa nya especially on these Groupbuys, kaya kahit andami na ibang nagpapa GB, dito lang talaga ako umo-order, mga more than 5 times na din! Aside from Mica & her team are super nice, I trust them too!',
     quote: 'dito lang talaga ako umo-order, mga more than 5 times na din!',
+    visuals: ['message-text'],
     crop: { x: 0.14, y: 0.175, w: 0.83, h: 0.33 },
     redactions: [{ x: 0, y: 0, w: 0.35, h: 0.06 }],
     hasPrivateDetails: true,
@@ -104,6 +127,7 @@ export const REVIEWS = [
     transcript:
       'Thank you mama mics! nabigla ako sa message ni admin Phoebe, paulit ulit ko pang tiningnan kasi akala ko lutang lang ako dahil nakainom na akong melatonin. Hahaha 3rd transaction ko na po ito sainyo.',
     quote: '3rd transaction ko na po ito sainyo.',
+    visuals: ['message-text'],
     crop: { x: 0, y: 0, w: 1, h: 0.315 },
     redactions: [],
     hasPrivateDetails: false,
@@ -116,7 +140,8 @@ export const REVIEWS = [
     transcript:
       '12/19 and 1/2 GB received ! Thank you so much mama Mics & sir James and Admins Godbless po',
     quote: '12/19 and 1/2 GB received !',
-    crop: { x: 0.13, y: 0.015, w: 0.84, h: 0.9 },
+    visuals: ['message-text'],
+    crop: { x: 0.13, y: 0.025, w: 0.84, h: 0.14 },
     redactions: [{ x: 0, y: 0, w: 0.32, h: 0.05 }],
     hasPrivateDetails: true,
   },
@@ -128,6 +153,7 @@ export const REVIEWS = [
     transcript:
       'Received my 12/19 raffle prize. Yay thanks @Mica and @Admin Glia (Mindanao Indi & GB)',
     quote: 'Received my 12/19 raffle prize.',
+    visuals: ['message-text', 'raffle-prize'],
     crop: { x: 0.1, y: 0.01, w: 0.88, h: 0.95 },
     redactions: [{ x: 0, y: 0, w: 0.28, h: 0.05 }],
     hasPrivateDetails: true,
@@ -140,7 +166,8 @@ export const REVIEWS = [
     transcript:
       'Got my raffle prize for the first time in my 31 years of existence! From TR20 to TR30 talaga binigay ni Mica. Thank you so much!!',
     quote: 'Got my raffle prize for the first time in my 31 years of existence!',
-    crop: { x: 0.13, y: 0.015, w: 0.84, h: 0.9 },
+    visuals: ['message-text'],
+    crop: { x: 0.13, y: 0.015, w: 0.84, h: 0.095 },
     redactions: [{ x: 0, y: 0, w: 0.3, h: 0.045 }],
     hasPrivateDetails: true,
   },
@@ -151,6 +178,7 @@ export const REVIEWS = [
     caption: 'Community feedback',
     transcript: 'Thank you',
     quote: 'Thank you',
+    visuals: ['message-text', 'raffle-prize'],
     crop: { x: 0.1, y: 0.01, w: 0.88, h: 0.93 },
     redactions: [{ x: 0, y: 0, w: 0.32, h: 0.05 }],
     hasPrivateDetails: true,
@@ -162,6 +190,7 @@ export const REVIEWS = [
     caption: 'Order received ✅',
     transcript: 'GB 1/2/26 Received yesterday thanks Ms Mica and Admins',
     quote: 'GB 1/2/26 Received yesterday',
+    visuals: ['message-text', 'parcel'],
     crop: { x: 0.08, y: 0.02, w: 0.88, h: 0.95 },
     redactions: [{ x: 0, y: 0, w: 0.3, h: 0.06 }],
     hasPrivateDetails: true,
@@ -173,7 +202,8 @@ export const REVIEWS = [
     caption: 'Another successful order',
     transcript: 'Got my GB 1/9 and ang napanalunan sa raffle na TR30! Salamat po! @Mica',
     quote: 'Got my GB 1/9 and ang napanalunan sa raffle na TR30!',
-    crop: { x: 0.13, y: 0.015, w: 0.84, h: 0.92 },
+    visuals: ['message-text'],
+    crop: { x: 0.13, y: 0.015, w: 0.84, h: 0.08 },
     redactions: [{ x: 0, y: 0, w: 0.3, h: 0.05 }],
     hasPrivateDetails: true,
   },

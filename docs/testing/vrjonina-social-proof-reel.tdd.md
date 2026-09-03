@@ -115,6 +115,65 @@ found and fixed, and the fixes were confirmed in a second render:
 | `r-third-transaction` lost its last line ("sainyo.") | Crop ended at 0.29 of the source height, flush against the text | Crop extended to 0.315 |
 | Hook screenshot wall filled only the top half of the frame | 6 tiles in a 3x2 grid at 430px | 9 tiles in a 3x3 grid at 520px |
 
+### 4. Brand treatment and vial removal (RED -> GREEN)
+
+Follow-up request: brand the reel with the MamaMica identity and remove all
+vial and product imagery, without changing the structure or timings.
+
+**RED** — `npx vitest run --config video/vitest.config.js`
+
+```
+ Test Files  1 failed (1)
+      Tests  7 failed | 21 passed (28)
+TypeError: Cannot read properties of undefined (reading 'backdropAlpha')
+```
+
+Checkpoint commit `c5bde21`.
+
+**GREEN** — after re-cropping every review and adding the brand layer:
+
+```
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+```
+
+**Vial removal.** Six screenshots were "short caption + photo of vials". Each
+crop was pulled in to the message text alone. What remains on screen is either
+message text, a sealed parcel, or a raffle prize; `ALLOWED_VISUALS` has no term
+for a vial or product shot, so a crop that showed one could not be described,
+and `visuals` on every review is checked against it.
+
+| Review | Was | Now |
+| --- | --- | --- |
+| `r-second-gb` | text + tray of vials | text only (989x426) |
+| `r-first-time-buyer` | text + open vial case | text only (990x220) |
+| `r-vancouver` | text + stacked vial trays | text only (1002x178) |
+| `r-two-gbs` | text + vials on a table | text only (990x228) |
+| `r-raffle-tr30` | text + TR30 vial box | text only (990x155) |
+| `r-gb-raffle-haul` | text + vial cases | text only (990x118) |
+
+**Brand treatment.** `public/logo.png` carries the roundel on a white plate;
+`prepareBrandMark` lifts it onto transparency by clipping the measured circle
+(centre 510.5,256, r 232) so it can sit over artwork. Three layers, all faint:
+the roundel appears full size in the intro above the headline, a 0.52x-width
+copy is baked into the backdrop at 3% opacity, and a rotated lattice of 132px
+roundels plus an 8% purple wash is baked into a single overlay sprite blitted
+above the scene content, so a lifted frame carries the mark. Alphas are bounded
+by test so review text stays legible through them.
+
+**Consequential fixes found by frame inspection:**
+
+| Defect | Cause | Fix |
+| --- | --- | --- |
+| A giant wordmark bled through mid-frame | Backdrop roundel drawn at 1.15x frame width | Reduced to 0.52x at 3% opacity, anchored low |
+| Collage tiles showed unreadable fragments | `cover` fit enlarged the now text-only crops until a tile held three characters | Tiles fit whole artwork on a uniform plate |
+| A collage tile clipped its last line | Ken Burns zoom on a contain-fitted tile has no spare margin | Tile zoom removed |
+| Short cards floated in the middle of the frame | Wide, shallow text crops centred in the full card area | Card centre drifts toward the pull-quote as the card gets shorter |
+
+Both collages now draw from the five screenshots that still carry a
+full-height, vial-free photo, so tiles fill their plates. Tiles therefore repeat
+between the two collages; they are twelve seconds apart.
+
 ## Test specification
 
 | # | What is guaranteed | Test | Type | Result |
@@ -140,6 +199,13 @@ found and fixed, and the fixes were confirmed in a second render:
 | 19 | Flagged screenshots always carry a redaction | `timeline.test.js:covers flagged private details…` | unit | PASS |
 | 20 | Redaction boxes stay inside the frame | `timeline.test.js:keeps every redaction box inside the frame` | unit | PASS |
 | 21 | Crop windows stay inside the frame | `timeline.test.js:keeps every crop window inside the frame` | unit | PASS |
+| 22 | The allowed subject vocabulary cannot name a vial or product | `timeline.test.js:offers no vocabulary for vials or product shots` | unit | PASS |
+| 23 | Every crop shows only allowed subjects | `timeline.test.js:shows nothing outside the allowed subject vocabulary` | unit | PASS |
+| 24 | Every single-review scene still shows the customer's message | `timeline.test.js:keeps the customer message visible…` | unit | PASS |
+| 25 | The intro and watermark share one logo asset | `timeline.test.js:names a logo asset for the intro and the watermark` | unit | PASS |
+| 26 | The purple wash stays below the readability ceiling | `timeline.test.js:tints the frame enough to be seen…` | unit | PASS |
+| 27 | The repeating watermark stays faint enough to read through | `timeline.test.js:keeps the repeating watermark faint…` | unit | PASS |
+| 28 | The backdrop logo stays behind the reviews | `timeline.test.js:keeps the backdrop logo faint…` | unit | PASS |
 
 Command: `npx vitest run --config video/vitest.config.js`
 

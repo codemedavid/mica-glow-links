@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 
 import { createCanvas, loadImage } from '@napi-rs/canvas'
 
-import { REVIEWS } from './reviews.js'
+import { BRAND, REVIEWS } from './reviews.js'
 
 const VIDEO_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const REPO_ROOT = path.resolve(VIDEO_DIR, '..')
@@ -20,6 +20,11 @@ const TMP_DIR = path.join(VIDEO_DIR, 'tmp')
 
 const MAX_EDGE = 1400
 const MOSAIC_BLOCKS = 10
+
+// The MamaMica roundel sits on a white plate in public/logo.png. Measured ink
+// bounding box is 282,25 -> 739,487, i.e. a circle at (510.5, 256) r~231.
+const LOGO_SOURCE = 'public/logo.png'
+const LOGO_CIRCLE = { cx: 510.5, cy: 256, r: 232 }
 
 // Replaces a region with a coarse mosaic. Reads as a deliberate privacy screen
 // rather than a rendering glitch, and never leaks a legible downscale.
@@ -39,6 +44,26 @@ function mosaic(ctx, canvas, box) {
   ctx.imageSmoothingEnabled = false
   ctx.drawImage(small, 0, 0, smallW, smallH, x, y, w, h)
   ctx.restore()
+}
+
+// Lifts the roundel off its white plate into a transparent PNG, so it can be
+// laid over artwork as a watermark without dragging a white box along.
+async function prepareBrandMark() {
+  const image = await loadImage(path.join(REPO_ROOT, LOGO_SOURCE))
+  const { cx, cy, r } = LOGO_CIRCLE
+  const size = r * 2
+
+  const out = createCanvas(size, size)
+  const ctx = out.getContext('2d')
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(r, r, r, 0, Math.PI * 2)
+  ctx.clip()
+  ctx.drawImage(image, cx - r, cy - r, size, size, 0, 0, size, size)
+  ctx.restore()
+
+  writeFileSync(path.join(ASSET_DIR, BRAND.logo), out.toBuffer('image/png'))
+  return `${BRAND.logo.padEnd(28)} ${size}x${size}  transparent roundel`
 }
 
 function prepare(review) {
@@ -77,7 +102,7 @@ function prepare(review) {
 mkdirSync(ASSET_DIR, { recursive: true })
 mkdirSync(TMP_DIR, { recursive: true })
 
-const lines = []
+const lines = [await prepareBrandMark()]
 for (const review of REVIEWS) lines.push(await prepare(review))
 rmSync(TMP_DIR, { recursive: true, force: true })
 

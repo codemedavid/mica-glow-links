@@ -3,6 +3,8 @@
 
 import { createCanvas } from '@napi-rs/canvas'
 
+import { BRAND } from './reviews.js'
+
 export const SANS = '"Helvetica Neue", Helvetica, Arial, "Apple Color Emoji"'
 
 export const PALETTE = {
@@ -76,6 +78,17 @@ export function wrapText(ctx, text, maxWidth, maxLines = Infinity) {
 // The backdrop is expensive to paint live (two full-frame radial gradients per
 // frame), so it is baked once into sprites and blitted with a drifting offset.
 let backdrop = null
+let overlay = null
+let brandMark = null
+
+// The renderer hands over the decoded roundel before the first frame.
+export function setBrandMark(image) {
+  brandMark = image
+  backdrop = null
+  overlay = null
+}
+
+export const getBrandMark = () => brandMark
 
 function glowSprite(radius, color) {
   const size = radius * 2
@@ -97,6 +110,15 @@ function buildBackdrop(width, height) {
   gradient.addColorStop(1, PALETTE.bgBottom)
   bctx.fillStyle = gradient
   bctx.fillRect(0, 0, width, height)
+
+  if (brandMark) {
+    // Deliberately small: a frame-width roundel reads as a rendering mistake
+    // bleeding through the middle of the shot rather than as ownership marking.
+    const size = width * 0.52
+    bctx.globalAlpha = BRAND.backdropAlpha
+    bctx.drawImage(brandMark, (width - size) / 2, height * 0.68, size, size)
+    bctx.globalAlpha = 1
+  }
 
   return {
     width,
@@ -123,6 +145,45 @@ export function drawBackground(ctx, width, height, t) {
   // Slow drift keeps the backdrop alive without pulling focus off the reviews.
   blit(backdrop.primary, width * 0.18 + Math.sin(t * 1.6) * 60, height * 0.16 + Math.cos(t * 1.2) * 50, 0.4)
   blit(backdrop.accent, width * 0.86 + Math.cos(t * 1.1) * 50, height * 0.82 + Math.sin(t * 1.4) * 60, 0.22)
+}
+
+// The ownership layer: a purple wash plus a diagonal lattice of faint
+// roundels. Both are baked into a single sprite so the per-frame cost is one
+// drawImage, and both alphas are held low enough that review text reads
+// straight through them.
+function buildOverlay(width, height) {
+  const sprite = createCanvas(width, height)
+  const ctx = sprite.getContext('2d')
+
+  ctx.fillStyle = `rgba(139, 92, 246, ${BRAND.tintAlpha})`
+  ctx.fillRect(0, 0, width, height)
+
+  if (brandMark) {
+    const mark = 132
+    const stepX = 340
+    const stepY = 300
+    ctx.save()
+    ctx.globalAlpha = BRAND.watermarkAlpha
+    ctx.translate(width / 2, height / 2)
+    ctx.rotate((-18 * Math.PI) / 180)
+    ctx.translate(-width / 2, -height / 2)
+    for (let y = -stepY; y < height + stepY; y += stepY) {
+      const offset = ((y / stepY) % 2) * (stepX / 2)
+      for (let x = -stepX; x < width + stepX; x += stepX) {
+        ctx.drawImage(brandMark, x + offset, y, mark, mark)
+      }
+    }
+    ctx.restore()
+  }
+
+  return sprite
+}
+
+export function drawBrandOverlay(ctx, width, height) {
+  if (!overlay || overlay.width !== width || overlay.height !== height) {
+    overlay = buildOverlay(width, height)
+  }
+  ctx.drawImage(overlay, 0, 0)
 }
 
 export function drawBrandMark(ctx, width) {
