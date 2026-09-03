@@ -216,6 +216,12 @@ export const HOOK = {
 
 export const CTA = {
   url: 'https://vrjonina.pepweb.store',
+  // The community site sits under the join line as a secondary destination.
+  // The store URL stays the large primary call to action, so this is set
+  // smaller and the gap is enforced by test.
+  communityUrl: 'mamamicaglw.com',
+  urlSize: 58,
+  communityUrlSize: 40,
   lines: [
     'Ready to start your journey with us? 💚',
     'Join our community today.',

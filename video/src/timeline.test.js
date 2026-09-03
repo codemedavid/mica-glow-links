@@ -70,6 +70,20 @@ describe('buildTimeline', () => {
     expect(cta.url).toBe('https://vrjonina.pepweb.store')
   })
 
+  it('offers the community site under the join line', () => {
+    const cta = timeline.scenes.at(-1)
+
+    expect(cta.communityUrl).toBe('mamamicaglw.com')
+  })
+
+  it('keeps the community site secondary to the ordering link', () => {
+    const cta = timeline.scenes.at(-1)
+
+    // The brief asks for the store URL to stay the large, primary call to
+    // action, so the second link must never be given more room than it.
+    expect(cta.communityUrlSize).toBeLessThan(cta.urlSize)
+  })
+
   it('holds every review long enough to actually read it', () => {
     const reviewScenes = timeline.scenes.filter((scene) => scene.type === 'review')
 

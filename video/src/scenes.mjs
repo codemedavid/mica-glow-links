@@ -290,32 +290,59 @@ export function drawCtaScene(ctx, scene, local) {
 
   ctx.font = `600 56px ${SANS}`
   ctx.fillStyle = '#FFFFFF'
-  ctx.fillText(headline, 540, 730)
+  ctx.fillText(headline, 540, 722)
 
   ctx.font = `500 46px ${SANS}`
   ctx.fillStyle = 'rgba(255,255,255,0.82)'
-  ctx.fillText(join, 540, 806)
+  ctx.fillText(join, 540, 794)
+
+  drawCommunityLink(ctx, scene, 862)
 
   ctx.strokeStyle = 'rgba(255,255,255,0.16)'
   ctx.lineWidth = 2
   ctx.beginPath()
-  ctx.moveTo(300, 886)
-  ctx.lineTo(780, 886)
+  ctx.moveTo(300, 928)
+  ctx.lineTo(780, 928)
   ctx.stroke()
 
   ctx.font = `500 40px ${SANS}`
   ctx.fillStyle = 'rgba(255,255,255,0.76)'
-  ctx.fillText(ask, 540, 962)
+  ctx.fillText(ask, 540, 992)
 
   ctx.font = `500 34px ${SANS}`
   ctx.fillStyle = 'rgba(255,255,255,0.55)'
-  ctx.fillText(visitLabel, 540, 1030)
+  ctx.fillText(visitLabel, 540, 1036)
 
   drawUrlPill(ctx, scene, local)
 
   ctx.font = `500 38px ${SANS}`
   ctx.fillStyle = 'rgba(255,255,255,0.7)'
-  ctx.fillText(farewell, 540, 1300)
+  ctx.fillText(farewell, 540, 1326)
+  ctx.restore()
+}
+
+// Secondary destination: a light outlined chip, deliberately quieter than the
+// filled store pill below it so the ordering link stays the primary action.
+function drawCommunityLink(ctx, scene, centreY) {
+  ctx.save()
+  ctx.font = `600 ${scene.communityUrlSize}px ${SANS}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+
+  const w = ctx.measureText(scene.communityUrl).width + 64
+  const h = 76
+  const x = 540 - w / 2
+  const y = centreY - h / 2
+
+  ctx.fillStyle = 'rgba(167,139,250,0.14)'
+  roundRect(ctx, x, y, w, h, h / 2)
+  ctx.fill()
+  ctx.lineWidth = 1.5
+  ctx.strokeStyle = 'rgba(196,181,253,0.45)'
+  ctx.stroke()
+
+  ctx.fillStyle = 'rgba(233,226,255,0.95)'
+  ctx.fillText(scene.communityUrl, 540, centreY + 1)
   ctx.restore()
 }
 
@@ -327,16 +354,16 @@ function drawUrlPill(ctx, scene, local) {
   const label = scene.url.replace('https://', '')
   ctx.save()
   ctx.globalAlpha *= reveal
-  ctx.font = `700 58px ${SANS}`
+  ctx.font = `700 ${scene.urlSize}px ${SANS}`
 
   const w = ctx.measureText(label).width + 108
   const h = 128
   const x = 540 - w / 2
-  const y = 1130 - h / 2
+  const y = 1152 - h / 2
   const scale = lerp(0.93, 1, reveal)
-  ctx.translate(540, 1130)
+  ctx.translate(540, 1152)
   ctx.scale(scale, scale)
-  ctx.translate(-540, -1130)
+  ctx.translate(-540, -1152)
 
   ctx.shadowColor = 'rgba(139,92,246,0.55)'
   ctx.shadowBlur = 46
@@ -355,6 +382,6 @@ function drawUrlPill(ctx, scene, local) {
   ctx.fillStyle = '#FFFFFF'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(label, 540, 1132)
+  ctx.fillText(label, 540, 1154)
   ctx.restore()
 }

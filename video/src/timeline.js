@@ -51,6 +51,9 @@ const buildScene = (step, from) => {
         ...base,
         lines: CTA.lines,
         url: CTA.url,
+        urlSize: CTA.urlSize,
+        communityUrl: CTA.communityUrl,
+        communityUrlSize: CTA.communityUrlSize,
         urlVisibleFrames: secondsToFrames(step.urlSeconds),
       }
     default:

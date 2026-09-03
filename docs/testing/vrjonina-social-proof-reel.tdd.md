@@ -174,6 +174,22 @@ Both collages now draw from the five screenshots that still carry a
 full-height, vial-free photo, so tiles fill their plates. Tiles therefore repeat
 between the two collages; they are twelve seconds apart.
 
+### 5. Community link on the CTA (RED -> GREEN)
+
+Follow-up request: add mamamicaglw.com under the "Join our community" line.
+
+**RED** — `Tests  2 failed | 28 passed (30)`: `cta.communityUrl` and the type
+sizes that keep it secondary did not exist.
+
+**GREEN** — `Tests  30 passed (30)`.
+
+The community site renders as a light outlined chip directly under the join
+line, at 40px against the store pill's 58px. The size gap is asserted rather
+than left to eye, because the brief requires the ordering URL to stay the
+large, primary call to action. Nothing else on the CTA changed except vertical
+spacing to make room; "Visit:" was colliding with the store pill on the first
+pass and the two were nudged apart.
+
 ## Test specification
 
 | # | What is guaranteed | Test | Type | Result |
@@ -206,6 +222,8 @@ between the two collages; they are twelve seconds apart.
 | 26 | The purple wash stays below the readability ceiling | `timeline.test.js:tints the frame enough to be seen…` | unit | PASS |
 | 27 | The repeating watermark stays faint enough to read through | `timeline.test.js:keeps the repeating watermark faint…` | unit | PASS |
 | 28 | The backdrop logo stays behind the reviews | `timeline.test.js:keeps the backdrop logo faint…` | unit | PASS |
+| 29 | The community site is offered under the join line | `timeline.test.js:offers the community site under the join line` | unit | PASS |
+| 30 | The community link stays smaller than the ordering link | `timeline.test.js:keeps the community site secondary…` | unit | PASS |
 
 Command: `npx vitest run --config video/vitest.config.js`
 
