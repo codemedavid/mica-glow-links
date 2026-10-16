@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import './App.css'
 import './components/home/home.css'
-import { fetchLinkOverrides, fetchLinkVisibility } from './data/settingsRepository'
+import {
+  fetchCustomLinks,
+  fetchLinkOverrides,
+  fetchLinkVisibility,
+} from './data/settingsRepository'
 import {
   adminLinks,
   applyAdminLinkOverrides,
@@ -11,11 +15,13 @@ import {
   contactAdminLink,
   groupBuyLink,
   linkGroups,
+  mergeCustomAdminLinks,
+  mergeCustomLinks,
 } from './data/homeLinks'
 import { createSupabaseClient } from './lib/supabase'
 import { OrderCalculator } from './components/order-calculator/OrderCalculator'
 import { PeptideCalculator } from './components/peptide-calculator/PeptideCalculator'
-import { Tutorials } from './components/tutorials/Tutorials'
+import { TutorialsPage } from './components/tutorials/Tutorials'
 import { Admin } from './components/admin/Admin'
 
 // Full-page views rendered in place of the links list, keyed by URL hash.
@@ -47,6 +53,7 @@ function App() {
   const [activeReview, setActiveReview] = useState(null)
   const [linkVisibility, setLinkVisibility] = useState({})
   const [linkOverrides, setLinkOverrides] = useState({})
+  const [customLinks, setCustomLinks] = useState([])
 
   useEffect(() => {
     // Parallax effect for background glows
@@ -84,7 +91,8 @@ function App() {
     Promise.all([
       fetchLinkVisibility({ client }),
       fetchLinkOverrides({ client }),
-    ]).then(([visibilityResult, overridesResult]) => {
+      fetchCustomLinks({ client }),
+    ]).then(([visibilityResult, overridesResult, customLinksResult]) => {
       if (!active) return
 
       if (Object.keys(visibilityResult.visibility).length > 0) {
@@ -93,6 +101,10 @@ function App() {
 
       if (Object.keys(overridesResult.overrides).length > 0) {
         setLinkOverrides(overridesResult.overrides)
+      }
+
+      if (customLinksResult.links.length > 0) {
+        setCustomLinks(customLinksResult.links)
       }
     })
 
@@ -103,8 +115,11 @@ function App() {
 
   const isLinkVisible = (id) => linkVisibility[id] !== false
   const effectiveGroupBuy = applyLinkOverride(groupBuyLink, linkOverrides)
-  const effectiveGroups = applyGroupOverrides(linkGroups, linkOverrides)
-  const effectiveAdminLinks = applyAdminLinkOverrides(adminLinks, linkOverrides)
+  const effectiveGroups = mergeCustomLinks(applyGroupOverrides(linkGroups, linkOverrides), customLinks)
+  const effectiveAdminLinks = mergeCustomAdminLinks(
+    applyAdminLinkOverrides(adminLinks, linkOverrides),
+    customLinks
+  )
   const effectiveContactAdmin = applyLinkOverride(contactAdminLink, linkOverrides)
   const accessDocLink = effectiveGroups
     .flatMap((group) => group.links)
@@ -455,7 +470,7 @@ function App() {
         )}
 
         {view === 'tutorials' && (
-          <Tutorials onBack={() => { window.location.hash = '' }} />
+          <TutorialsPage onBack={() => { window.location.hash = '' }} />
         )}
 
         {view === 'reviews' && (

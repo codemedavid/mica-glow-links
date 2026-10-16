@@ -1,0 +1,335 @@
+/* Admin — Videos tab.
+   Rows read like a mini YouTube queue: a real thumbnail so the owner can
+   recognise a video at a glance, the title, and a live / coming-soon state.
+   Built on the shared admin tokens; only the two status colours are new. */
+
+.admin {
+  --admin-mint: #6ee7b7;
+  --admin-mint-bg: rgba(110, 231, 183, 0.12);
+  --admin-mint-border: rgba(110, 231, 183, 0.4);
+  --admin-gold: #fcd34d;
+  --admin-gold-bg: rgba(252, 211, 77, 0.12);
+  --admin-gold-border: rgba(252, 211, 77, 0.45);
+  --admin-thumb-w: 116px;
+}
+
+.admin-add:disabled {
+  opacity: 0.45;
+  filter: none;
+  cursor: not-allowed;
+}
+
+/* ===== List ===== */
+
+.admin-video-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-video {
+  display: grid;
+  grid-template-columns: var(--admin-thumb-w) minmax(0, 1fr);
+  grid-template-areas:
+    'thumb body'
+    'actions actions';
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(196, 181, 253, 0.16);
+  background: rgba(12, 6, 26, 0.35);
+  transition: border-color var(--admin-duration) var(--admin-ease);
+}
+
+.admin-video:hover,
+.admin-video:focus-within {
+  border-color: var(--admin-border-strong);
+}
+
+.admin-video-thumb {
+  grid-area: thumb;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(150deg, rgba(139, 92, 246, 0.4), rgba(50, 32, 105, 0.6));
+  display: grid;
+  place-items: center;
+}
+
+.admin-video-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-video-thumb-empty {
+  font-size: 13px;
+  color: var(--admin-ink-faint);
+}
+
+.admin-video-badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(16, 9, 32, 0.85);
+  border: 1px solid var(--admin-gold-border);
+  color: var(--admin-gold);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-video-body {
+  grid-area: body;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.admin-video-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  /* Long titles wrap to two lines, then ellipsis — the row height stays calm. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admin-video-meta {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--admin-ink-faint);
+}
+
+.admin-video-status {
+  margin-top: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-ink-faint);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-video-status--live {
+  border-color: var(--admin-mint-border);
+  background: var(--admin-mint-bg);
+  color: var(--admin-mint);
+}
+
+.admin-video-actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(196, 181, 253, 0.1);
+}
+
+.admin-video-actions .admin-row-ghost {
+  align-self: center;
+}
+
+.admin-video-actions .admin-row-ghost--danger,
+.admin-video-actions .admin-product-confirm {
+  margin-left: auto;
+}
+
+.admin-video-move {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.admin-row-icon {
+  width: 36px;
+  padding: 0;
+  font-size: 14px;
+}
+
+.admin-video-actions .admin-row-ghost:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
+  color: var(--admin-ink-soft);
+}
+
+/* Scoped to the row so it outranks admin.css, which loads after this file. */
+.admin-video-actions .admin-row-ghost--on {
+  border-color: var(--admin-gold-border);
+  background: var(--admin-gold-bg);
+  color: var(--admin-gold);
+}
+
+.admin-video-actions .admin-row-ghost--on:hover,
+.admin-video-actions .admin-row-ghost--on:focus-visible {
+  background: rgba(252, 211, 77, 0.2);
+  color: var(--admin-gold);
+}
+
+/* ===== Notices ===== */
+
+.admin-video-error {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-video-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--admin-border-strong);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--admin-ink-soft);
+}
+
+/* ===== Sheet ===== */
+
+.admin-video-sheet {
+  gap: 14px;
+}
+
+.admin-field-label--split {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.admin-counter {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--admin-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-textarea {
+  min-height: 84px;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.admin-video-sheet-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.admin-video-preview {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-mint-border);
+  background: var(--admin-mint-bg);
+}
+
+.admin-video-preview img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+.admin-video-preview-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+}
+
+.admin-video-preview-copy a {
+  color: var(--admin-ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.admin-video-link-state {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-video-link-state--ok {
+  color: var(--admin-mint);
+}
+
+.admin-video-link-state--bad {
+  color: var(--admin-rose);
+}
+
+.admin-video-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--admin-radius-field);
+  border: 1px solid var(--admin-border);
+  cursor: pointer;
+}
+
+.admin-video-feature:has(input:checked) {
+  border-color: var(--admin-gold-border);
+  background: var(--admin-gold-bg);
+}
+
+.admin-video-feature input {
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  flex: none;
+  accent-color: var(--admin-accent);
+}
+
+.admin-video-feature-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13.5px;
+}
+
+/* Wider screens: videos sit side by side. */
+@media (min-width: 900px) {
+  .admin {
+    --admin-thumb-w: 136px;
+  }
+
+  .admin-video-list {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  }
+}
+
+@media (max-width: 360px) {
+  .admin {
+    --admin-thumb-w: 96px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-video {
+    transition: none;
+  }
+}

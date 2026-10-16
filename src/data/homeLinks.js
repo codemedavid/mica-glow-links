@@ -126,8 +126,8 @@ export const adminLinks = [
   { id: 'admin-phoebe', title: 'Admin Phoebe', href: 'https://api.whatsapp.com/send?phone=639686450947' },
   { id: 'admin-glia', title: 'Admin Glia', href: 'https://api.whatsapp.com/send?phone=639062364792' },
   { id: 'admin-james', title: 'Admin James', href: 'https://api.whatsapp.com/send?phone=639054620846' },
-  { id: 'admin-danica', title: 'Admin Danica', href: 'https://api.whatsapp.com/send?phone=639302121321' },
   { id: 'admin-jonina', title: 'Admin Jonina', href: 'https://api.whatsapp.com/send?phone=639058429200' },
+  { id: 'admin-danica', title: 'Admin Danica', href: 'https://api.whatsapp.com/send?phone=639302121321' },
 ]
 
 export const contactAdminLink = {
@@ -205,3 +205,50 @@ export const homeControls = [
 ]
 
 export const homeLinkIds = homeControls.flatMap((group) => group.links.map((link) => link.id))
+
+const CONTACT_GROUP_ID = 'contact'
+const DEFAULT_CUSTOM_ICON = '🔗'
+
+// Categories the owner can add links to from the admin page. Contact links
+// join the WhatsApp admin dropdown rather than the button list.
+export const CUSTOM_LINK_GROUPS = [
+  ...linkGroups.map(({ id, label }) => ({ id, label })),
+  { id: CONTACT_GROUP_ID, label: 'CONTACT' },
+]
+
+/**
+ * Appends owner-added links to the end of their category. Links saved against
+ * a category that no longer exists are skipped rather than guessed at.
+ *
+ * @param {typeof linkGroups} groups
+ * @param {Array<{id: string, groupId: string, icon: string, title: string, desc: string, href: string}>} customLinks
+ */
+export function mergeCustomLinks(groups, customLinks = []) {
+  return groups.map((group) => {
+    const added = customLinks
+      .filter((link) => link.groupId === group.id)
+      .map(({ id, icon, title, desc, href }) => ({
+        id,
+        icon: icon || DEFAULT_CUSTOM_ICON,
+        title,
+        desc,
+        href,
+        kind: 'external',
+        isCustom: true,
+      }))
+
+    return added.length > 0 ? { ...group, links: [...group.links, ...added] } : group
+  })
+}
+
+/**
+ * @param {typeof adminLinks} links
+ * @param {Array<{id: string, groupId: string, title: string, href: string}>} customLinks
+ */
+export function mergeCustomAdminLinks(links, customLinks = []) {
+  const added = customLinks
+    .filter((link) => link.groupId === CONTACT_GROUP_ID)
+    .map(({ id, title, href }) => ({ id, title, href, isCustom: true }))
+
+  return [...links, ...added]
+}

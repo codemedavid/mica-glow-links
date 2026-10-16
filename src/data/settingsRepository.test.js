@@ -1,15 +1,19 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
+  CUSTOM_LINKS_KEY,
   DEFAULT_SHIPPING_FEE,
   LINK_OVERRIDES_KEY,
   LINK_VISIBILITY_KEY,
   normalizeShippingFee,
+  normalizeCustomLinks,
   normalizeLinkOverrides,
   normalizeLinkVisibility,
   fetchShippingFee,
+  fetchCustomLinks,
   fetchLinkOverrides,
   fetchLinkVisibility,
   updateShippingFee,
+  updateCustomLinks,
   updateLinkOverrides,
   updateLinkVisibility,
 } from './settingsRepository'
@@ -461,5 +465,143 @@ describe('updateLinkOverrides — writing editable link details', () => {
 
     expect(result.ok).toBe(false)
     expect(result.error).toMatch(/sign|auth/i)
+  })
+})
+
+describe('normalizeCustomLinks — trusting only complete, safe links', () => {
+  const VALID = {
+    id: 'custom-abc',
+    groupId: 'shop',
+    icon: '🛍️',
+    title: 'Restock form',
+    desc: 'Reserve your next batch',
+    href: 'https://example.com/restock',
+  }
+
+  it('reads the stored links in order', () => {
+    expect(normalizeCustomLinks({ value: { links: [VALID] } })).toEqual([VALID])
+  })
+
+  it('defaults a missing icon and description to empty strings', () => {
+    const { icon: _icon, desc: _desc, ...bare } = VALID
+
+    expect(normalizeCustomLinks({ value: { links: [bare] } })).toEqual([
+      { ...bare, icon: '', desc: '' },
+    ])
+  })
+
+  it('drops a link whose URL could run script, rather than rendering it', () => {
+    const links = [VALID, { ...VALID, id: 'custom-bad', href: 'javascript:alert(1)' }]
+
+    expect(normalizeCustomLinks({ value: { links } })).toEqual([VALID])
+  })
+
+  it('drops links missing an id, category, or title', () => {
+    const links = [
+      { ...VALID, id: '' },
+      { ...VALID, groupId: undefined },
+      { ...VALID, title: '   ' },
+    ]
+
+    expect(normalizeCustomLinks({ value: { links } })).toEqual([])
+  })
+
+  it('returns null when the row is missing or malformed', () => {
+    expect(normalizeCustomLinks(null)).toBeNull()
+    expect(normalizeCustomLinks({ value: { links: {} } })).toBeNull()
+  })
+})
+
+describe('fetchCustomLinks — degrading to the built-in links only', () => {
+  it('returns the stored links when Supabase answers', async () => {
+    const link = {
+      id: 'custom-abc',
+      groupId: 'shop',
+      icon: '',
+      title: 'Restock form',
+      desc: '',
+      href: 'https://example.com/restock',
+    }
+    const client = clientReturning({
+      data: { key: CUSTOM_LINKS_KEY, value: { links: [link] } },
+      error: null,
+    })
+
+    expect(await fetchCustomLinks({ client })).toEqual({
+      links: [link],
+      source: 'supabase',
+      error: null,
+    })
+  })
+
+  it('falls back to no custom links when no client is configured', async () => {
+    expect(await fetchCustomLinks({ client: null })).toEqual({
+      links: [],
+      source: 'fallback',
+      error: null,
+    })
+  })
+
+  it('falls back when Supabase errors', async () => {
+    const client = clientReturning({ data: null, error: { message: 'boom' } })
+
+    expect(await fetchCustomLinks({ client })).toEqual({
+      links: [],
+      source: 'fallback',
+      error: 'boom',
+    })
+  })
+})
+
+describe('updateCustomLinks — writing links the owner added', () => {
+  const upsertSpy = (result) => {
+    const upsert = vi.fn(() => Promise.resolve(result))
+    return { upsert, client: { from: vi.fn(() => ({ upsert })) } }
+  }
+
+  const LINK = {
+    id: 'custom-abc',
+    groupId: 'learn',
+    icon: '📗',
+    title: 'Storage guide',
+    desc: 'How to store your vials',
+    href: 'https://example.com/storage',
+  }
+
+  it('upserts the list onto the custom_links settings row', async () => {
+    const { upsert, client } = upsertSpy({ error: null })
+
+    expect(await updateCustomLinks([LINK], { client })).toEqual({ ok: true, error: null })
+    expect(client.from).toHaveBeenCalledWith(SETTINGS_TABLE)
+    expect(upsert).toHaveBeenCalledWith(
+      { key: CUSTOM_LINKS_KEY, value: { links: [LINK] } },
+      { onConflict: 'key' }
+    )
+  })
+
+  it('refuses an unsafe URL without touching the database', async () => {
+    const { upsert, client } = upsertSpy({ error: null })
+
+    const result = await updateCustomLinks([{ ...LINK, href: 'javascript:alert(1)' }], { client })
+
+    expect(result.ok).toBe(false)
+    expect(result.error).toMatch(/url/i)
+    expect(upsert).not.toHaveBeenCalled()
+  })
+
+  it('refuses to write when nobody is signed in', async () => {
+    const result = await updateCustomLinks([LINK], { client: null })
+
+    expect(result.ok).toBe(false)
+    expect(result.error).toMatch(/sign/i)
+  })
+
+  it('surfaces a row-level-security rejection as a readable failure', async () => {
+    const { client } = upsertSpy({ error: { message: 'new row violates row-level security policy' } })
+
+    expect(await updateCustomLinks([LINK], { client })).toEqual({
+      ok: false,
+      error: 'new row violates row-level security policy',
+    })
   })
 })

@@ -30,6 +30,16 @@ const SETTINGS_ROWS = {
   shipping_fee: { amount: 250 },
   link_visibility: { visibility: {} },
   link_overrides: { overrides: {} },
+  custom_links: { links: [] },
+}
+
+const SAVED_CUSTOM_LINK = {
+  id: 'custom-restock',
+  groupId: 'shop',
+  icon: '🛍️',
+  title: 'Restock form',
+  desc: 'Reserve your next batch',
+  href: 'https://example.com/restock',
 }
 
 /**
@@ -46,6 +56,8 @@ const fakeClient = ({
   signInError = null,
   upsertError = null,
   products = [PRODUCT_ROW],
+  isOwner = true,
+  ownerCheckError = null,
   settings = SETTINGS_ROWS,
 } = {}) => {
   const upsert = vi.fn(() => Promise.resolve({ error: upsertError }))
@@ -54,6 +66,12 @@ const fakeClient = ({
 
   return {
     upsert,
+    // is_shop_owner() answers for whoever holds the session, as the real RPC does.
+    rpc: vi.fn(() =>
+      Promise.resolve(
+        ownerCheckError ? { data: null, error: ownerCheckError } : { data: isOwner, error: null }
+      )
+    ),
     auth: {
       getSession: () => Promise.resolve({ data: { session: current }, error: null }),
       onAuthStateChange: (callback) => {
@@ -345,6 +363,187 @@ describe('Admin — link visibility', () => {
       )
     )
     expect(await screen.findByRole('status')).toHaveTextContent(/details saved/i)
+  })
+})
+
+describe('Admin — adding links', () => {
+  const openLinksTab = async (user) => {
+    await user.click(await screen.findByRole('button', { name: /links/i }))
+    await screen.findByRole('heading', { name: /home page buttons/i })
+  }
+
+  const groupSection = (label) =>
+    screen.getByRole('heading', { name: label }).closest('.admin-link-group')
+
+  it('offers an add button in every category except the featured banner', async () => {
+    const { user } = setup({ session: SESSION })
+
+    await openLinksTab(user)
+
+    expect(screen.getAllByRole('button', { name: /\+ add link/i })).toHaveLength(5)
+    expect(within(groupSection('Featured')).queryByRole('button', { name: /add link/i })).toBeNull()
+  })
+
+  it('adds a new link to the chosen category and saves it', async () => {
+    const { user, client } = setup({ session: SESSION })
+
+    await openLinksTab(user)
+    const shop = groupSection('SHOP')
+    await user.click(within(shop).getByRole('button', { name: /\+ add link/i }))
+
+    const form = within(shop).getByRole('form', { name: /new link in shop/i })
+    await user.type(within(form).getByLabelText(/icon/i), '🛍️')
+    await user.type(within(form).getByLabelText(/title/i), 'Restock form')
+    await user.type(within(form).getByLabelText(/description/i), 'Reserve your next batch')
+    await user.type(within(form).getByLabelText(/url/i), 'https://example.com/restock')
+    await user.click(within(form).getByRole('button', { name: /^add link$/i }))
+
+    await waitFor(() =>
+      expect(client.upsert).toHaveBeenCalledWith(
+        {
+          key: 'custom_links',
+          value: {
+            links: [
+              {
+                id: expect.stringMatching(/^custom-/),
+                groupId: 'shop',
+                icon: '🛍️',
+                title: 'Restock form',
+                desc: 'Reserve your next batch',
+                href: 'https://example.com/restock',
+              },
+            ],
+          },
+        },
+        { onConflict: 'key' }
+      )
+    )
+    expect(await screen.findByRole('status')).toHaveTextContent(/link added/i)
+    expect(within(groupSection('SHOP')).getByDisplayValue('Restock form')).toBeVisible()
+  })
+
+  it('refuses a link without a usable URL and saves nothing', async () => {
+    const { user, client } = setup({ session: SESSION })
+
+    await openLinksTab(user)
+    const learn = groupSection('LEARN & VERIFY')
+    await user.click(within(learn).getByRole('button', { name: /\+ add link/i }))
+
+    const form = within(learn).getByRole('form', { name: /new link/i })
+    await user.type(within(form).getByLabelText(/title/i), 'Storage guide')
+    await user.type(within(form).getByLabelText(/url/i), 'not a url')
+    await user.click(within(form).getByRole('button', { name: /^add link$/i }))
+
+    expect(await within(form).findByRole('alert')).toHaveTextContent(/valid url/i)
+    expect(client.upsert).not.toHaveBeenCalled()
+  })
+
+  it('shows links added earlier inside their category', async () => {
+    const { user } = setup({
+      session: SESSION,
+      settings: { ...SETTINGS_ROWS, custom_links: { links: [SAVED_CUSTOM_LINK] } },
+    })
+
+    await openLinksTab(user)
+
+    expect(await within(groupSection('SHOP')).findByDisplayValue('Restock form')).toBeVisible()
+    expect(within(groupSection('SHOP')).getByDisplayValue('https://example.com/restock')).toBeVisible()
+  })
+
+  it('saves edits to an added link back onto the custom list', async () => {
+    const { user, client } = setup({
+      session: SESSION,
+      settings: { ...SETTINGS_ROWS, custom_links: { links: [SAVED_CUSTOM_LINK] } },
+    })
+
+    await openLinksTab(user)
+    const titleInput = await screen.findByDisplayValue('Restock form')
+    const editor = titleInput.closest('.admin-link-editor')
+
+    await user.clear(titleInput)
+    await user.type(titleInput, 'Pre-order form')
+    await user.click(within(editor).getByRole('button', { name: /save details/i }))
+
+    await waitFor(() =>
+      expect(client.upsert).toHaveBeenCalledWith(
+        {
+          key: 'custom_links',
+          value: { links: [{ ...SAVED_CUSTOM_LINK, title: 'Pre-order form' }] },
+        },
+        { onConflict: 'key' }
+      )
+    )
+  })
+
+  it('removes an added link after the owner confirms', async () => {
+    const { user, client } = setup({
+      session: SESSION,
+      settings: { ...SETTINGS_ROWS, custom_links: { links: [SAVED_CUSTOM_LINK] } },
+    })
+
+    await openLinksTab(user)
+    const editor = (await screen.findByDisplayValue('Restock form')).closest('.admin-link-editor')
+
+    await user.click(within(editor).getByRole('button', { name: /^remove$/i }))
+    expect(client.upsert).not.toHaveBeenCalled()
+    await user.click(within(editor).getByRole('button', { name: /yes, remove/i }))
+
+    await waitFor(() =>
+      expect(client.upsert).toHaveBeenCalledWith(
+        { key: 'custom_links', value: { links: [] } },
+        { onConflict: 'key' }
+      )
+    )
+    expect(await screen.findByRole('status')).toHaveTextContent(/link removed/i)
+    expect(screen.queryByDisplayValue('Restock form')).toBeNull()
+  })
+
+  it('does not offer to remove the built-in buttons', async () => {
+    const { user } = setup({ session: SESSION })
+
+    await openLinksTab(user)
+    const editor = (await screen.findByDisplayValue('Price List')).closest('.admin-link-editor')
+
+    expect(within(editor).queryByRole('button', { name: /remove/i })).toBeNull()
+  })
+})
+
+describe('Admin — only the shop owners get in', () => {
+  it('turns away an account that is not an owner, and signs it out', async () => {
+    const { user, client } = setup({ isOwner: false })
+
+    await user.type(await screen.findByLabelText(/email/i), 'stranger@example.com')
+    await user.type(screen.getByLabelText(/password/i), 'correct horse battery staple')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/does not have admin access/i)
+    expect(client.rpc).toHaveBeenCalledWith('is_shop_owner')
+    expect(client.auth.signOut).toHaveBeenCalled()
+    expect(screen.queryByRole('heading', { name: /price list/i })).toBeNull()
+    expect(screen.queryByRole('navigation', { name: /admin sections/i })).toBeNull()
+  })
+
+  it('never shows the admin to a non-owner who arrives already signed in', async () => {
+    const { client } = setup({ session: SESSION, isOwner: false })
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/does not have admin access/i)
+    expect(screen.getByLabelText(/password/i)).toBeVisible()
+    expect(screen.queryByRole('navigation', { name: /admin sections/i })).toBeNull()
+    expect(client.auth.signOut).toHaveBeenCalled()
+  })
+
+  it('keeps the admin closed when ownership cannot be confirmed', async () => {
+    setup({ session: SESSION, ownerCheckError: { message: 'network down' } })
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/could not confirm admin access/i)
+    expect(screen.queryByRole('navigation', { name: /admin sections/i })).toBeNull()
+  })
+
+  it('lets an owner straight in', async () => {
+    const { client } = setup({ session: SESSION })
+
+    expect(await screen.findByRole('navigation', { name: /admin sections/i })).toBeVisible()
+    expect(client.auth.signOut).not.toHaveBeenCalled()
   })
 })
 

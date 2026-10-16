@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Tutorials } from './Tutorials'
+import { Tutorials, TutorialsPage } from './Tutorials'
 
 /**
  * Journey: As a community member who has just received a vial, I want to browse
@@ -188,5 +188,133 @@ describe('Tutorials navigation', () => {
     render(<Tutorials onBack={noop} />)
 
     expect(screen.getByText(/confirm technique and dosing with your prescriber/i)).toBeVisible()
+  })
+})
+
+/**
+ * Journey: As a community member who knows what I am stuck on, I want to type
+ * it and see only the matching videos, so that I do not have to scan the
+ * whole library on my phone.
+ */
+describe('Tutorials search', () => {
+  const searchBox = () => screen.getByRole('searchbox', { name: /search tutorials/i })
+
+  it('narrows the library to videos whose title or description match', async () => {
+    const user = userEvent.setup()
+    render(<Tutorials onBack={noop} />)
+
+    await user.type(searchBox(), 'syringe')
+
+    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
+      'Drawing your dose in units',
+      'Choosing your syringe size',
+    ])
+  })
+
+  it('announces how many videos were found', async () => {
+    const user = userEvent.setup()
+    render(<Tutorials onBack={noop} />)
+
+    await user.type(searchBox(), 'syringe')
+
+    expect(screen.getByText('2 tutorials for “syringe”')).toBeVisible()
+  })
+
+  it('searches the featured walkthrough too, listing it with the other results', async () => {
+    const user = userEvent.setup()
+    render(<Tutorials onBack={noop} />)
+
+    await user.type(searchBox(), 'bacteriostatic')
+
+    expect(screen.queryByRole('heading', { level: 2, name: /reconstituting vials/i })).toBeNull()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Reconstituting vials & using peptide pens' })
+    ).toBeVisible()
+  })
+
+  it('marks the words that matched in each result title', async () => {
+    const user = userEvent.setup()
+    render(<Tutorials onBack={noop} />)
+
+    await user.type(searchBox(), 'syringe')
+
+    expect(screen.getByText('syringe', { selector: 'mark' })).toBeVisible()
+  })
+
+  it('combines with the category filter', async () => {
+    const user = userEvent.setup()
+    render(<Tutorials onBack={noop} />)
+
+    await user.click(screen.getByRole('radio', { name: 'Reconstitution' }))
+    await user.type(searchBox(), 'swirl')
+
+    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
+      'Reconstituting vials & using peptide pens',
+      'Mixing without damaging the peptide',
+    ])
+  })
+
+  it('offers a way out when nothing matches', async () => {
+    const user = userEvent.setup()
+    render(<Tutorials onBack={noop} />)
+
+    await user.type(searchBox(), 'zzz')
+    expect(screen.getByText(/no tutorials match “zzz”/i)).toBeVisible()
+
+    await user.click(screen.getByRole('button', { name: /^clear search$/i }))
+
+    expect(searchBox()).toHaveValue('')
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(5)
+  })
+
+  it('clears with the Escape key', async () => {
+    const user = userEvent.setup()
+    render(<Tutorials onBack={noop} />)
+
+    await user.type(searchBox(), 'pen{Escape}')
+
+    expect(searchBox()).toHaveValue('')
+  })
+})
+
+describe('Tutorials library from the admin page', () => {
+  const ONLY_DOSING = [
+    {
+      id: 'video-dose',
+      title: 'Drawing your dose',
+      desc: '',
+      category: 'Dosing',
+      length: '',
+      youtubeId: 'aBcDeFgHiJ1',
+      isFeatured: false,
+    },
+  ]
+
+  it('only offers category filters that have videos behind them', () => {
+    render(<Tutorials onBack={noop} items={ONLY_DOSING} />)
+
+    expect(screen.getAllByRole('radio').map((radio) => radio.textContent)).toEqual(['All', 'Dosing'])
+  })
+
+  it('shows a loading state instead of an empty library while the list arrives', () => {
+    render(<Tutorials onBack={noop} items={[]} isLoading />)
+
+    expect(screen.getByRole('status')).toHaveTextContent(/loading tutorials/i)
+    expect(screen.queryByText(/no tutorials/i)).toBeNull()
+  })
+
+  it('shows the videos the owner published', async () => {
+    const maybeSingle = vi.fn(() =>
+      Promise.resolve({ data: { value: { videos: ONLY_DOSING } }, error: null })
+    )
+    const client = { from: () => ({ select: () => ({ eq: () => ({ maybeSingle }) }) }) }
+
+    render(<TutorialsPage onBack={noop} client={client} />)
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Drawing your dose' })).toBeVisible()
+    expect(screen.getByTitle('Drawing your dose')).toHaveAttribute(
+      'src',
+      'https://www.youtube-nocookie.com/embed/aBcDeFgHiJ1'
+    )
   })
 })
