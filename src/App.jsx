@@ -23,6 +23,7 @@ import { OrderCalculator } from './components/order-calculator/OrderCalculator'
 import { PeptideCalculator } from './components/peptide-calculator/PeptideCalculator'
 import { TutorialsPage } from './components/tutorials/Tutorials'
 import { Admin } from './components/admin/Admin'
+import { CoaNotice } from './components/home/CoaNotice'
 
 // Full-page views rendered in place of the links list, keyed by URL hash.
 const VIEW_BY_HASH = {
@@ -242,6 +243,8 @@ function App() {
               <span className="home-eyebrow">Your trusted glow essentials</span>
               <p className="home-bio">Everything you need — prices, authenticity, community, and guides.</p>
             </header>
+
+            <CoaNotice />
 
             {/* Group buy banner */}
             {isLinkVisible('group-buy') && (

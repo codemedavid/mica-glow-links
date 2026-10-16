@@ -111,3 +111,39 @@ describe('Video Tutorials link', () => {
     ).not.toBeInTheDocument()
   })
 })
+
+/**
+ * Journey: As a community member, I want to see the COA notice at the top of
+ * the links page, so that I know our COAs are only valid for Mama Mica GLW and
+ * its Philippine resellers, and that other vendors showing them are not us.
+ */
+describe('COA notice', () => {
+  beforeEach(() => {
+    window.location.hash = ''
+    render(<App />)
+  })
+
+  it('is announced near the top of the home view', () => {
+    const notice = screen.getByRole('region', { name: /about our coas/i })
+
+    expect(notice).toBeVisible()
+  })
+
+  it('explains that the Vanguard results were unpublished because of scammers', () => {
+    const notice = screen.getByRole('region', { name: /about our coas/i })
+
+    expect(notice).toHaveTextContent(/scammers in china\/ outside the philippines/i)
+    expect(notice).toHaveTextContent(/unpublished all my vanguard results/i)
+  })
+
+  it('limits COA use to Mama Mica GLW, its admins, and verified resellers in the Philippines', () => {
+    const notice = screen.getByRole('region', { name: /about our coas/i })
+
+    expect(notice).toHaveTextContent(/verified resellers within the philippines only/i)
+    expect(notice).toHaveTextContent(/other vendors are not authorized/i)
+  })
+
+  it('no longer shows the old Vanguard/Janoshik announcement', () => {
+    expect(screen.queryByText(/janoshik/i)).not.toBeInTheDocument()
+  })
+})

@@ -436,3 +436,60 @@
     padding-top: 9px;
   }
 }
+
+/* COA notice — amber accent so it reads as a warning, not a promo */
+.coa-notice {
+  --coa-accent: #fcd34d;
+  --coa-border: rgba(252, 211, 77, 0.38);
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--coa-border);
+  border-left: 4px solid var(--coa-accent);
+  background: linear-gradient(135deg, rgba(120, 72, 14, 0.32), rgba(46, 29, 84, 0.6));
+  box-shadow: 0 10px 28px rgba(10, 4, 28, 0.35);
+}
+
+.coa-notice-tag {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  font-weight: 800;
+  color: var(--coa-accent);
+}
+
+.coa-notice-heading {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.coa-notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #d8cdf3;
+  text-wrap: pretty;
+}
+
+.coa-notice-body p {
+  margin: 0;
+}
+
+.coa-notice-body strong {
+  color: #ffffff;
+}
+
+/* The usage restriction is the takeaway, so it gets its own inset panel */
+.coa-notice-rule {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(252, 211, 77, 0.1);
+  border: 1px solid rgba(252, 211, 77, 0.22);
+}
